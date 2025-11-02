@@ -3,10 +3,10 @@ import DummyUser from "../assets/DummyUser";
 import axios from "axios";
 
 const RightSidebar = ({ SelectedUser, setSelectdUser }) => {
-  const User = DummyUser.Name===SelectedUser
-console.log(User)
+  const User = DummyUser.find((u) => u.Name === SelectedUser);
+  console.log(User);
   const logout = async () => {
-    console.log("logout button pressed")
+    console.log("logout button pressed");
     const response = await axios.post("http://localhost:5000/user/logout", {
       withCredentials: true,
     });
