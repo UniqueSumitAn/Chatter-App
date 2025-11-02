@@ -15,7 +15,7 @@ const signUp = async (req, res) => {
     if (user) {
       return res.json({ success: false, message: "user already exist" });
     }
-    const newUser = await User.create({
+    const newUser = new User({
       email,
       fullname,
       password,
@@ -23,6 +23,8 @@ const signUp = async (req, res) => {
       friends,
       status: "online",
     });
+
+    await newUser.save();
     const token = generateToken(newUser._id.toString());
     await res.cookie("token", token, {
       httpOnly: true, // JS on frontend cannot access (good)
@@ -110,7 +112,6 @@ const logout = async (req, res) => {
   try {
     // Optional: update user status
 
-    
     // if (req.userId) {
     //   const user = await User.findById(req.userId);
     //   if (user) {
