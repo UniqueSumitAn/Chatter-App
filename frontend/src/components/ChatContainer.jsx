@@ -2,10 +2,12 @@ import DummyUser from "../assets/DummyUser";
 import DummyMessages from "../assets/DummyMessages";
 import { io } from "socket.io-client";
 import { useEffect } from "react";
-
+console.log("📦 ChatContainer file loaded");
 const ChatContainer = ({ SelectedUser, setSelectedUSer }) => {
   const User = DummyUser.find((user) => user.Name == SelectedUser);
   useEffect(() => {
+    console.log("🚀 useEffect running in ChatContainer", SelectedUser);
+
     const socket = io("http://localhost:5000", {
       withCredentials: true,
     });
@@ -14,6 +16,9 @@ const ChatContainer = ({ SelectedUser, setSelectedUSer }) => {
     });
     socket.on("socketid", (data) => {
       console.log(data);
+    });
+    socket.on("connect_error", (err) => {
+      console.error("Socket connection failed:", err.message);
     });
 
     return () => {

@@ -66,7 +66,7 @@ const login = async (req, res) => {
         await res.cookie("token", token, {
           httpOnly: true, // JS on frontend cannot access (good)
           secure: false, // set true if using HTTPS (production)
-          sameSite: "None", // allows sending cookie with cross-origin requests
+          sameSite: "lax", // allows sending cookie with cross-origin requests
         });
 
         return res.json({

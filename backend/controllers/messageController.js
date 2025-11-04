@@ -32,8 +32,9 @@ const chat = (server) => {
 
     // Parse cookies
     const cookies = cookie.parse(cookieHeader);
+    console.log(cookies)
     const token = cookies.token; // assuming cookie is named "token"
-
+    console.log(token);
     if (!token) {
       return next(new Error("Authentication error: No token found in cookies"));
     }
