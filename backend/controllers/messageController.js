@@ -1,6 +1,7 @@
 const { Server } = require("socket.io");
 const User = require("../Model/User");
 const cookie = require("cookie");
+const jwt = require("jsonwebtoken");
 const searchFriendsUserforSidebar = async (req, res) => {
   try {
     const search = req.body;
@@ -32,14 +33,15 @@ const chat = (server) => {
     // Parse cookies
     const cookies = cookie.parse(cookieHeader);
     const token = cookies.token; // assuming cookie is named "token"
-    console.log(token, "<-token");
+
     if (!token) {
       return next(new Error("Authentication error: No token found in cookies"));
     }
 
     try {
-      const decoded = jwt.verify(token, "secrete");
+      const decoded = jwt.verify(token, `${process.env.JWTSECRET}`);
       socket.user = decoded.id; // Attach decoded user info
+      console.log(socket.user);
       next();
     } catch (err) {
       return next(new Error("Invalid or expired token"));

@@ -52,7 +52,9 @@ const LoginPage = () => {
           : console.log(response.data.message);
         console.log(response.data);
       } else {
-        const response = await axios.post("http://localhost:5000/user/login", loginFormDetails);
+        const response = await axios.post("http://localhost:5000/user/login", loginFormDetails,{
+          withCredentials:true,
+        });
         response.data.success
           ? navigate("/Home", {
               state: {

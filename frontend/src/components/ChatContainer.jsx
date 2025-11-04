@@ -1,17 +1,26 @@
-import React from "react";
 import DummyUser from "../assets/DummyUser";
 import DummyMessages from "../assets/DummyMessages";
 import { io } from "socket.io-client";
+import { useEffect } from "react";
 
-const socket = io("http://localhost:5000", {
-  withCredentials: true,
-});
 const ChatContainer = ({ SelectedUser, setSelectedUSer }) => {
   const User = DummyUser.find((user) => user.Name == SelectedUser);
-  socket.on("socketid", (data) => {
-    console.log(data, ":<-:socketid");
-  });
+  useEffect(() => {
+    const socket = io("http://localhost:5000", {
+      withCredentials: true,
+    });
+    socket.on("connect", () => {
+      console.log("id:", socket.id);
+    });
+    socket.on("socketid", (data) => {
+      console.log(data);
+    });
 
+    return () => {
+      socket.disconnect();
+      console.log("🔌 Socket disconnected");
+    };
+  }, []);
   return (
     <div className=" h-full min-h-0 rounded-xl shadow-xl backdrop-blur-lg bg-white/10 border border-white/20 flex flex-col">
       {/* header */}
