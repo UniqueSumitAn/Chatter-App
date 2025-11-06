@@ -5,16 +5,18 @@ const User = require("../Model/User");
 
 const protectRoute = async (req, res, next) => {
   try {
+    console.log("hii protect route")
     const token = req.cookies?.token;
     if (token) {
       const deecode = await jwt.verify(token, process.env.JWTSECRET);
-      console.log(deecode);
-      const user = await User.findById(deecode);
+      console.log(deecode,"protect route");
+      const user = await User.findById(deecode.id).select("-password");
       if (user) {
-        res.user = user.id;
+        req.user = user;
         next();
       }
     }
+    else{console.log("no toke found")}
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "user not found" });

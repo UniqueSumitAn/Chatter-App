@@ -4,6 +4,7 @@ const {
   login,
   updateProfile,
   logout,
+  friendList,
 } = require("../controllers/userController");
 const protectRoute = require("../middleware/auth");
 
@@ -12,5 +13,6 @@ userRouter.post("/signup", signUp);
 userRouter.post("/login", login);
 userRouter.post("/logout", logout);
 userRouter.post("/updateprofile", protectRoute, updateProfile);
+userRouter.get("/friendList",protectRoute,friendList)
 
 module.exports = userRouter;

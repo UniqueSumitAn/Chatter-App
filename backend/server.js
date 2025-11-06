@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectdb = require("./lib/db");
@@ -12,6 +13,7 @@ const app = express();
 const server = http.createServer(app);
 chat(server);
 app.use(express.json());
+app.use(cookieParser())
 app.use(
   cors({
     origin: "http://localhost:5173", // your React app

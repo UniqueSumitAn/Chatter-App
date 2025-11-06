@@ -32,7 +32,7 @@ const chat = (server) => {
 
     // Parse cookies
     const cookies = cookie.parse(cookieHeader);
-    console.log(cookies)
+    console.log(cookies);
     const token = cookies.token; // assuming cookie is named "token"
     console.log(token);
     if (!token) {
@@ -53,7 +53,12 @@ const chat = (server) => {
     const user_id = socket.user;
     if (user_id) {
       console.log(socket_id, "<-socketid::userid->", user_id);
-      // const user = await User.findOneAndUpdate({});
+      const user = await User.findByIdAndUpdate(
+        `${user_id}`, // The user _id
+        { $set: { socket_id: socket.id } }, // The update operation
+        { new: true } // Return the updated document
+      );
+      console.log(user,"61 user")
     }
 
     socket.emit("socketid", socket.id);

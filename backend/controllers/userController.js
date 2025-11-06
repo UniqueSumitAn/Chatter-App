@@ -107,6 +107,14 @@ const updateProfile = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+// friendList
+const friendList = async (req, res) => {
+  const user = await User.findById(req.user);
+  console.log(user.friends, "113user friendlist");
+
+  return res.json({ success: true });
+};
+
 //logout
 const logout = async (req, res) => {
   try {
@@ -134,4 +142,4 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { signUp, login, updateProfile, logout };
+module.exports = { signUp, login, updateProfile, logout, friendList };
