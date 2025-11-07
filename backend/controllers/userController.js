@@ -137,7 +137,7 @@ const friendList = async (req, res) => {
     online: friend.online,
   }));
 
-  // 4️⃣ Send to frontend
+
   return res.status(200).json({
     success: true,
     message: "Friend list fetched successfully",

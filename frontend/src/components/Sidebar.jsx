@@ -7,11 +7,23 @@ import DummyUser from "../assets/DummyUser";
 import axios from "axios";
 const Sidebar = ({ SelectedUser, setSelectdUser }) => {
   const [friendList, setFriendList] = useState([]);
+  const [Suggestions, setSuggestions] = useState();
+  const [SearchfriendText, setSearchFriendText] = useState();
+  const searchFriend = async (text) => {
+    setSearchFriendText(text);
+    const response = await axios.get(
+        `http://localhost:5000/user/searchfriend?query=${text}`,
+      {
+        withCredentials: true,
+      }
+    );
+    console.log(response.data)
+  };
 
   useEffect(() => {
     const fetchFriendList = async () => {
       try {
-        console.log("effect hit")
+        console.log("effect hit");
         const response = await axios.get(
           "http://localhost:5000/user/friendList",
           {
@@ -60,6 +72,10 @@ const Sidebar = ({ SelectedUser, setSelectdUser }) => {
       <div className=" rounded-full flex items-center gap-2 mt-5 py-3 px-4 bg-[#282142]">
         <img src={search} alt=" searchIcon" className="w-3 aspect-square" />
         <input
+          onChange={(e) => {
+            searchFriend(e.target.value);
+          }}
+          value={SearchfriendText}
           type="text"
           className="bg-transparent border-none outline-none text-white text-xs placeholder-[#c8c8c8] flex-1"
           placeholder="Search Friends"
@@ -68,7 +84,7 @@ const Sidebar = ({ SelectedUser, setSelectdUser }) => {
 
       {/* friends list */}
       <div className=" overflow-y-auto hide-scrollbar mt-5 flex-1">
-        {friendList.map((friend,index) => (
+        {friendList.map((friend, index) => (
           <div
             onClick={() => setSelectdUser(friend.fullname)}
             key={index}
@@ -82,7 +98,9 @@ const Sidebar = ({ SelectedUser, setSelectdUser }) => {
               />
               <span className=" ml-2">{friend.fullname}</span>
             </div>
-            <span className={friend.Online ? "text-green-300" : "text-gray-300"}>
+            <span
+              className={friend.Online ? "text-green-300" : "text-gray-300"}
+            >
               {friend.Online ? " •Online" : "•Offline"}
             </span>
           </div>

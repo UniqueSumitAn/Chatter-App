@@ -2,13 +2,17 @@ const { Server } = require("socket.io");
 const User = require("../Model/User");
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
+
 const searchFriendsUserforSidebar = async (req, res) => {
   try {
-    const search = req.body;
+    const search = req.query.query || "";
+    if (!search.trim()) return res.json([]);
     // ✅ Find users whose fullname matches (case-insensitive partial match)
-    const isAvailable = await User.find({
+    const users = await User.find({
       fullname: { $regex: search, $options: "i" },
     }).select("fullname email profilepic"); // only return necessary fields
+    console.log(users,"14 messagecontroller")
+    return res.json(users);
   } catch (error) {
     console.log(error.message);
     res.json({ success: false, message: error.message });
@@ -58,7 +62,7 @@ const chat = (server) => {
         { $set: { socket_id: socket.id } }, // The update operation
         { new: true } // Return the updated document
       );
-      console.log(user,"61 user")
+      console.log(user, "61 user");
     }
 
     socket.emit("socketid", socket.id);
