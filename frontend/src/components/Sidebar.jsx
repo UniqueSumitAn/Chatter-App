@@ -19,7 +19,7 @@ const Sidebar = ({ SelectedUser, setSelectdUser }) => {
           }
         );
         console.log(response);
-        setFriendList(response.data || []); // ensure you handle empty responses safely
+        setFriendList(response.data.friends || []); // ensure you handle empty responses safely
       } catch (error) {
         console.error("Error fetching friend list:", error);
         setFriendList([]); // fallback if request fails
@@ -68,22 +68,22 @@ const Sidebar = ({ SelectedUser, setSelectdUser }) => {
 
       {/* friends list */}
       <div className=" overflow-y-auto hide-scrollbar mt-5 flex-1">
-        {DummyUser.map((user, index) => (
+        {friendList.map((friend,index) => (
           <div
-            onClick={() => setSelectdUser(user.Name)}
+            onClick={() => setSelectdUser(friend.fullname)}
             key={index}
             className="flex justify-between items-center p-2 border-b border-gray-700 text-amber-50 gap-2 cursor-pointer"
           >
             <div className="flex items-center gap-1">
               <img
-                src={user.ProfilePic}
-                alt={user.Name}
+                src={friend.ProfilePic}
+                alt={friend.fullname}
                 className="w-12 h-12 rounded-full object-cover"
               />
-              <span className=" ml-2">{user.Name}</span>
+              <span className=" ml-2">{friend.fullname}</span>
             </div>
-            <span className={user.Online ? "text-green-300" : "text-gray-300"}>
-              {user.Online ? " •Online" : "•Offline"}
+            <span className={friend.Online ? "text-green-300" : "text-gray-300"}>
+              {friend.Online ? " •Online" : "•Offline"}
             </span>
           </div>
         ))}

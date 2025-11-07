@@ -109,10 +109,40 @@ const updateProfile = async (req, res) => {
 };
 // friendList
 const friendList = async (req, res) => {
-  const user = await User.findById(req.user);
-  console.log(user.friends, "113user friendlist");
+  const friendId = "690d6b3fa3f3d3aa5f484124";
+  const user = await User.findById(req.user._id);
 
-  return res.json({ success: true });
+  // await User.findByIdAndUpdate(
+  //   req.user._id,
+  //   { $addToSet: { friends: friendId } },
+  //   { new: true }
+  // );
+
+  const populatedUser = await User.findById(req.user._id).populate(
+    "friends",
+    "fullname email profilepic online"
+  );
+
+  // 3️⃣ Log each friend’s name
+  populatedUser.friends.forEach((friend) => {
+    console.log(friend.fullname);
+  });
+
+  // 3️⃣ Prepare response array (optional: cleaner output)
+  const friendsList = populatedUser.friends.map((friend) => ({
+    _id: friend._id,
+    fullname: friend.fullname,
+    email: friend.email,
+    profilepic: friend.profilepic,
+    online: friend.online,
+  }));
+
+  // 4️⃣ Send to frontend
+  return res.status(200).json({
+    success: true,
+    message: "Friend list fetched successfully",
+    friends: friendsList,
+  });
 };
 
 //logout
