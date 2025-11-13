@@ -47,6 +47,7 @@ const LoginPage = () => {
           ? navigate("/Home", {
               state: {
                 user: response.data.user,
+                user_id:response.data.user_id,
               },
             })
           : console.log(response.data.message);
@@ -59,6 +60,7 @@ const LoginPage = () => {
           ? navigate("/Home", {
               state: {
                 user: response.data.user,
+                user_id:response.data.user_id,
               },
             })
           : console.log(response.data.message);

@@ -2,16 +2,17 @@ const { Server } = require("socket.io");
 const User = require("../Model/User");
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
-
+const Message = require("../Model/message");
 const searchFriendsUserforSidebar = async (req, res) => {
   try {
     const search = req.query.query || "";
     if (!search.trim()) return res.json([]);
     // ✅ Find users whose fullname matches (case-insensitive partial match)
     const users = await User.find({
+      _id: { $ne: req.id.id }, // exclude the user himself
       fullname: { $regex: search, $options: "i" },
     }).select("fullname email profilepic"); // only return necessary fields
-    console.log(users,"14 messagecontroller")
+    console.log(users, "14 messagecontroller");
     return res.json(users);
   } catch (error) {
     console.log(error.message);
@@ -19,7 +20,29 @@ const searchFriendsUserforSidebar = async (req, res) => {
   }
 };
 
+// ✅ Fetch chat history between two users
+const getMessages = async (req, res) => {
+  try {
+    const senderId = req.id.id; // extracted from protectRoute middleware
+    const receiverId = req.params.receiverId;
+
+    const messages = await Message.find({
+      $or: [
+        { senderId, receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).sort({ createdAt: 1 }); // sort by time ascending
+
+    res.json(messages);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ message: "Error fetching messages" });
+  }
+};
+
 const chat = (server) => {
+  let onlineUsers = new Map();
+
   const io = new Server(server, {
     cors: {
       origin: "http://localhost:5173",
@@ -56,6 +79,8 @@ const chat = (server) => {
     const socket_id = socket.id;
     const user_id = socket.user;
     if (user_id) {
+      onlineUsers.set(user_id, socket.id);
+
       console.log(socket_id, "<-socketid::userid->", user_id);
       const user = await User.findByIdAndUpdate(
         `${user_id}`, // The user _id
@@ -66,7 +91,41 @@ const chat = (server) => {
     }
 
     socket.emit("socketid", socket.id);
+
+    socket.on("sendMessage", async (data) => {
+      const { senderId, receiverId, text } = data;
+      //check if reciever is online
+      const receiverSocketId = onlineUsers.get(receiverId);
+      //save message to db
+      const newMessage = await Message.create({ senderId, receiverId, text });
+      // ✅ Emit message to receiver (if online)
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receiveMessage", newMessage);
+      }
+      // emit message to sender to update senders ui
+      io.to(socket.id).emit("messageSent", newMessage);
+    });
+
+    socket.on("disconnect", async () => {
+      let disconnectedUser = null;
+      console.log("🔴75 User disconnected:", socket.id);
+      // Find which user had this socket id
+      for (const [userId, id] of onlineUsers.entries()) {
+        if (id === socket.id) {
+          disconnectedUser = userId;
+          onlineUsers.delete(userId);
+          break; // stop after finding
+        }
+      }
+      if (disconnectedUser) {
+        const user = await User.findById(disconnectedUser);
+        if (user) {
+          user.status = "offline";
+          await user.save();
+        }
+      }
+    });
   });
 };
 
-module.exports = { searchFriendsUserforSidebar, chat };
+module.exports = { searchFriendsUserforSidebar, chat, getMessages };

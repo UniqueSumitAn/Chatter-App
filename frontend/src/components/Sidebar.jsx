@@ -5,19 +5,20 @@ import search from "../assets/people.png";
 import { Navigate, useNavigate } from "react-router-dom";
 import DummyUser from "../assets/DummyUser";
 import axios from "axios";
-const Sidebar = ({ SelectedUser, setSelectdUser }) => {
+const Sidebar = ({ SelectedUser, setSelectdUser,setSelectedUserDetails }) => {
   const [friendList, setFriendList] = useState([]);
-  const [Suggestions, setSuggestions] = useState();
+  const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
+  
   const searchFriend = async (text) => {
     setSearchFriendText(text);
     const response = await axios.get(
-        `http://localhost:5000/user/searchfriend?query=${text}`,
+      `http://localhost:5000/user/searchfriend?query=${text}`,
       {
         withCredentials: true,
       }
     );
-    console.log(response.data)
+    setSuggestions(response.data);
   };
 
   useEffect(() => {
@@ -82,13 +83,42 @@ const Sidebar = ({ SelectedUser, setSelectdUser }) => {
         />
       </div>
 
+      {/* Show search results */}
+      <div className="mt-3 text-white text-sm">
+        {Suggestions.length > 0
+          ? Suggestions.map((user) => (
+              <div
+                key={user._id}
+                className="flex items-center gap-2 p-2 hover:bg-[#3b2a63] cursor-pointer rounded-lg"
+                onClick={() => {console.log(user);
+                  setSelectdUser(user._id);
+                  setSelectedUserDetails(user);
+                  
+                }}
+              >
+                <img
+                  src={user.profilepic || "/defaultAvatar.png"}
+                  alt={user.fullname}
+                  className="w-6 h-6 rounded-full"
+                />
+                <span>{user.fullname}</span>
+              </div>
+            ))
+          : SearchfriendText && (
+              <p className="text-gray-400 text-xs mt-2">No users found</p>
+            )}
+      </div>
+
       {/* friends list */}
       <div className=" overflow-y-auto hide-scrollbar mt-5 flex-1">
         {friendList.map((friend, index) => (
           <div
-            onClick={() => setSelectdUser(friend.fullname)}
+            onClick={() => {
+              setSelectdUser(friend._id);
+              setSelectedUserDetails(friend);
+            }}
             key={index}
-            className="flex justify-between items-center p-2 border-b border-gray-700 text-amber-50 gap-2 cursor-pointer"
+            className="flex justify-between items-center p-2 border-b border-gray-700 text-amber-50 gap-2 cursor-pointer hover:bg-[#3b2a63] rounded-lg"
           >
             <div className="flex items-center gap-1">
               <img

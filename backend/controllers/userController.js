@@ -25,6 +25,7 @@ const signUp = async (req, res) => {
     });
 
     await newUser.save();
+    const savedUser = await User.findById(newUser._id).select("-password");
     const token = generateToken(newUser._id.toString());
     await res.cookie("token", token, {
       httpOnly: true, // JS on frontend cannot access (good)
@@ -34,7 +35,8 @@ const signUp = async (req, res) => {
 
     return res.json({
       success: true,
-      user: fullname,
+      user: savedUser,
+      user_id: savedUser._id,
       email: email,
       message: "user created successfully",
     });
@@ -68,11 +70,14 @@ const login = async (req, res) => {
           secure: false, // set true if using HTTPS (production)
           sameSite: "lax", // allows sending cookie with cross-origin requests
         });
-
+        const userWithoutPassword = await User.findById(user._id).select(
+          "-password"
+        );
         return res.json({
           success: true,
           message: "user logged in successfully",
-          user: user.fullname,
+          user: userWithoutPassword,
+          user_id: user._id,
         });
       }
     }
@@ -136,7 +141,6 @@ const friendList = async (req, res) => {
     profilepic: friend.profilepic,
     online: friend.online,
   }));
-
 
   return res.status(200).json({
     success: true,
