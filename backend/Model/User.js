@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const generateToken = require("../lib/utils/utils");
+
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true },
@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     profilepic: { type: String, default: "" },
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    requests:[{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
+    requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     socket_id: {
       type: String,
       default: "",

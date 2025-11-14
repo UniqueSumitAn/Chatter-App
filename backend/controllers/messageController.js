@@ -125,7 +125,7 @@ const chat = (server) => {
         if (user) {
           user.status = "offline";
           await user.save();
-          console.log(onlineUsers,"  128")
+          console.log(onlineUsers.size,"  128")
         }
       }
     });

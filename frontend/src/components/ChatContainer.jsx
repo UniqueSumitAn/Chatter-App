@@ -1,14 +1,7 @@
-import DummyUser from "../assets/DummyUser";
-import DummyMessages from "../assets/DummyMessages";
-import { io } from "socket.io-client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { useState } from "react";
-console.log("📦 ChatContainer file loaded");
+import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000", {
-  withCredentials: true,
-});
 const ChatContainer = ({
   SelectedUser,
   setSelectedUSer,
@@ -18,101 +11,122 @@ const ChatContainer = ({
   setFriendList,
   friendList,
 }) => {
-  console.log(SelectedUserDetails, isFriend);
-
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const handleAddFriend = async (data) => {
-    console.log("button pressed 24", data);
-    const response = await axios.post(
-      "http://localhost:5000/user/addFriend",
-      data,
-      {
-        withCredentials: true,
-      }
-    );
-    if (response.data.success) {
-      try {
-        console.log("effect hit");
-        const response = await axios.get(
-          "http://localhost:5000/user/friendList",
-          {
-            withCredentials: true,
-          }
-        );
-        console.log(response);
-        setFriendList(response.data.friends || []); // ensure you handle empty responses safely
-        console.log(friendList, "={friendList}");
-      } catch (error) {
-        console.error("Error fetching friend list:", error);
-        setFriendList([]); // fallback if request fails
-      }
-    } else {
-      console.log("Something went wrong");
-    }
-  };
-  useEffect(() => {
-    console.log("🆕18 Messages updated:", messages);
-  }, [messages]);
 
-  // ✅ Load previous chat messages
+  
+  const socketRef = useRef(null);
+
+ 
   useEffect(() => {
-    const fetchMessages = async () => {
+    if (!currentUser?._id) return;
+
+    console.log("🔌 Connecting socket for user:", currentUser._id);
+
+    socketRef.current = io("http://localhost:5000", {
+      withCredentials: true,
+      auth: { userId: currentUser._id }, 
+    });
+
+    socketRef.current.on("connect", () => {
+      console.log("🟢 Socket Connected:", socketRef.current.id);
+    });
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        console.log("🔴 Socket Disconnected");
+      }
+    };
+  }, [currentUser]);
+
+  // Load previous messages when user changes
+  useEffect(() => {
+    const loadMessages = async () => {
       if (!SelectedUser) return;
+
       try {
         const res = await axios.get(
           `http://localhost:5000/user/${SelectedUser}`,
           { withCredentials: true }
         );
-        setMessages(res.data);
+        setMessages(res.data || []);
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
     };
-    fetchMessages();
+
+    loadMessages();
   }, [SelectedUser]);
 
-  // ✅ Handle socket connection & incoming messages
+  //  Setup listeners for incoming messages
   useEffect(() => {
-    if (!currentUser?._id) return;
+    if (!socketRef.current) return;
 
-    // Listen for received messages
-    socket.on("receiveMessage", (newMessage) => {
+    const socket = socketRef.current;
+
+    const handleReceive = (newMessage) => {
       if (
         newMessage.senderId === SelectedUser ||
         newMessage.receiverId === SelectedUser
       ) {
         setMessages((prev) => [...prev, newMessage]);
       }
-    });
+    };
 
-    // Listen for confirmation of sent message
-    socket.on("messageSent", (newMessage) => {
+    const handleSent = (newMessage) => {
       setMessages((prev) => [...prev, newMessage]);
-    });
+    };
+
+    socket.on("receiveMessage", handleReceive);
+    socket.on("messageSent", handleSent);
 
     return () => {
-      socket.off("receiveMessage");
-      socket.off("messageSent");
+      socket.off("receiveMessage", handleReceive);
+      socket.off("messageSent", handleSent);
     };
-  }, [SelectedUser, currentUser]);
+  }, [SelectedUser]);
 
-  const handleSend = async () => {
+  //  Send message
+  const handleSend = () => {
     if (!text.trim()) return;
-    socket.emit("sendMessage", {
+    if (!socketRef.current) return;
+
+    socketRef.current.emit("sendMessage", {
       senderId: currentUser._id,
       receiverId: SelectedUser,
       text,
     });
+
     setText("");
   };
 
+  //  Add friend
+  const handleAddFriend = async (data) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/user/addFriend",
+        data,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        const res = await axios.get(
+          "http://localhost:5000/user/friendList",
+          { withCredentials: true }
+        );
+        setFriendList(res.data.friends || []);
+      }
+    } catch (err) {
+      console.error("Error adding friend:", err);
+    }
+  };
+
   return (
-    <div className=" h-full min-h-0 rounded-xl shadow-xl backdrop-blur-lg bg-white/10 border border-white/20 flex flex-col">
-      {isFriend && (
+    <div className="h-full min-h-0 rounded-xl shadow-xl backdrop-blur-lg bg-white/10 border border-white/20 flex flex-col">
+      {isFriend ? (
         <>
-          {/* header */}
-          {/* friend profile pic, name,online status */}
+          {/*  Header */}
           <div className="flex items-center gap-3 py-3 mx-4 border-b border-stone-500">
             <img
               src={SelectedUserDetails.ProfilePic}
@@ -131,7 +145,7 @@ const ChatContainer = ({
             </p>
           </div>
 
-          {/* chat messages */}
+          {/*  Messages */}
           <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar p-3 flex flex-col">
             {messages.map((message, index) => (
               <div
@@ -143,28 +157,21 @@ const ChatContainer = ({
                 }`}
               >
                 <div
-                  className={`  mt-3 p-2 h-fit text-white flex flex-col min-w-18 ${
+                  className={`mt-3 p-2 text-white min-w-18 ${
                     message.senderId === currentUser._id
                       ? "ml-auto mr-8 rounded-tl-xl rounded-tr-xl rounded-bl-xl bg-purple-700"
                       : "mr-auto ml-8 rounded-tl-xl rounded-tr-xl rounded-br-xl bg-purple-500"
                   }`}
                 >
                   {message.text}
-                  <p className="text-gray-300 text-[9px] ml-auto ">
-                    {"message.time"}
-                  </p>
                 </div>
+
                 <img
-                  src={`${
+                  src={
                     message.senderId === currentUser._id
                       ? currentUser.ProfilePic
                       : SelectedUserDetails.ProfilePic
-                  }`}
-                  alt={`${
-                    message.senderId === currentUser._id
-                      ? currentUser.fullname
-                      : SelectedUserDetails.fullname
-                  }`}
+                  }
                   className={`w-8 aspect-square rounded-full ${
                     message.senderId === currentUser._id ? "ml-auto" : "mr-auto"
                   }`}
@@ -172,42 +179,35 @@ const ChatContainer = ({
               </div>
             ))}
           </div>
+
+          {/*  Message Input */}
           <div className="flex justify-center items-center mb-3 mt-3 gap-3">
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
-              onSubmit={handleSend}
               placeholder="Type Your Message"
-              className=" w-[80%] h-10 bg-purple-600 rounded-4xl p-5 text-white placeholder:text-center"
+              className="w-[80%] h-10 bg-purple-600 rounded-4xl p-5 text-white placeholder:text-center"
             ></input>
             <button onClick={handleSend}>send</button>
           </div>
         </>
-      )}
-
-      {!isFriend && (
+      ) : (
+        /*  NOT FRIEND UI */
         <div className="h-full flex items-center justify-center">
           <div className="text-center p-8 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg max-w-sm mx-auto">
             <img
               src={SelectedUserDetails?.ProfilePic}
-              alt={SelectedUserDetails?.fullname}
-              className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-purple-400 shadow-md object-cover"
+              className="w-20 h-20 rounded-full mx-auto mb-4"
             />
-
             <h2 className="text-2xl font-semibold text-white mb-2">
               {SelectedUserDetails?.fullname}
             </h2>
-
             <p className="text-white/70 mb-6">
               This user is not in your friend list yet.
             </p>
-
             <button
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white rounded-xl shadow-md transition-all duration-200"
-              onClick={() => {
-                console.log("add friend clicked");
-                handleAddFriend(SelectedUserDetails);
-              }}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
+              onClick={() => handleAddFriend(SelectedUserDetails)}
             >
               ➕ Add Friend
             </button>
