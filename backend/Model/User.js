@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     profilepic: { type: String, default: "" },
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    requests:[{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
     socket_id: {
       type: String,
       default: "",

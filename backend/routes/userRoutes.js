@@ -5,6 +5,7 @@ const {
   updateProfile,
   logout,
   friendList,
+  addFriend,
 } = require("../controllers/userController");
 const protectRoute = require("../middleware/auth");
 const { searchFriendsUserforSidebar, getMessages } = require("../controllers/messageController");
@@ -17,4 +18,5 @@ userRouter.post("/updateprofile", protectRoute, updateProfile);
 userRouter.get("/friendList",protectRoute,friendList)
 userRouter.get("/searchfriend",protectRoute,searchFriendsUserforSidebar)
 userRouter.get("/:receiverId",protectRoute ,getMessages)
+userRouter.post("/addFriend",protectRoute,addFriend)
 module.exports = userRouter;

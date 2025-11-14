@@ -12,7 +12,7 @@ const searchFriendsUserforSidebar = async (req, res) => {
       _id: { $ne: req.id.id }, // exclude the user himself
       fullname: { $regex: search, $options: "i" },
     }).select("fullname email profilepic"); // only return necessary fields
-    console.log(users, "14 messagecontroller");
+    
     return res.json(users);
   } catch (error) {
     console.log(error.message);
@@ -22,6 +22,7 @@ const searchFriendsUserforSidebar = async (req, res) => {
 
 // ✅ Fetch chat history between two users
 const getMessages = async (req, res) => {
+  
   try {
     const senderId = req.id.id; // extracted from protectRoute middleware
     const receiverId = req.params.receiverId;
@@ -33,7 +34,7 @@ const getMessages = async (req, res) => {
       ],
     }).sort({ createdAt: 1 }); // sort by time ascending
 
-    res.json(messages);
+    return res.json(messages);
   } catch (error) {
     console.error("Error fetching messages:", error);
     res.status(500).json({ message: "Error fetching messages" });
@@ -59,9 +60,9 @@ const chat = (server) => {
 
     // Parse cookies
     const cookies = cookie.parse(cookieHeader);
-    console.log(cookies);
+    
     const token = cookies.token; // assuming cookie is named "token"
-    console.log(token);
+    
     if (!token) {
       return next(new Error("Authentication error: No token found in cookies"));
     }
@@ -69,7 +70,7 @@ const chat = (server) => {
     try {
       const decoded = jwt.verify(token, `${process.env.JWTSECRET}`);
       socket.user = decoded.id; // Attach decoded user info
-      console.log(socket.user);
+      
       next();
     } catch (err) {
       return next(new Error("Invalid or expired token"));
@@ -87,7 +88,7 @@ const chat = (server) => {
         { $set: { socket_id: socket.id } }, // The update operation
         { new: true } // Return the updated document
       );
-      console.log(user, "61 user");
+      
     }
 
     socket.emit("socketid", socket.id);
@@ -101,9 +102,11 @@ const chat = (server) => {
       // ✅ Emit message to receiver (if online)
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("receiveMessage", newMessage);
+        console.log("104 recievemessage emitted",receiverSocketId)
       }
       // emit message to sender to update senders ui
       io.to(socket.id).emit("messageSent", newMessage);
+      console.log("108 recievemessage sent emitted")
     });
 
     socket.on("disconnect", async () => {
@@ -122,6 +125,7 @@ const chat = (server) => {
         if (user) {
           user.status = "offline";
           await user.save();
+          console.log(onlineUsers,"  128")
         }
       }
     });

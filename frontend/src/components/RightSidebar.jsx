@@ -6,8 +6,8 @@ const RightSidebar = ({
   SelectedUser,
   setSelectdUser,
   SelectedUserDetails,
+  isFriend,
 }) => {
-  
   console.log(SelectedUserDetails);
   const logout = async () => {
     console.log("logout button pressed");
@@ -17,19 +17,23 @@ const RightSidebar = ({
   };
 
   return (
-    <div className=" flex flex-col justify-center items-center h-full min-h-0 backdrop-blur-lg bg-white/10 border border-white/20 rounded-l-xl">
-      {/* profile pic */}
-      <img src={SelectedUserDetails.ProfilePic} />
-      <p>{SelectedUserDetails.Name}</p>
-      <button
-        className="bg-amber-600"
-        onClick={() => {
-          logout();
-        }}
-      >
-        logout
-      </button>
-    </div>
+    <>
+      {isFriend && (
+        <div className=" flex flex-col justify-center items-center h-full min-h-0 backdrop-blur-lg bg-white/10 border border-white/20 rounded-l-xl">
+          {/* profile pic */}
+          <img src={SelectedUserDetails.ProfilePic} />
+          <p>{SelectedUserDetails.Name}</p>
+          <button
+            className="bg-amber-600"
+            onClick={() => {
+              logout();
+            }}
+          >
+            logout
+          </button>
+        </div>
+      )}
+    </>
   );
 };
 

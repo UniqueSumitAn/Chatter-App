@@ -112,6 +112,20 @@ const updateProfile = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+//add friend
+const addFriend = async (req, res) => {
+  const friend = req.body;
+  if (friend) {
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $addToSet: { friends: friend._id } }, // $addToSet prevents duplicates
+      { new: true }
+    );
+  }
+  return res.json({ success: true });
+};
+
 // friendList
 const friendList = async (req, res) => {
   const friendId = "690d6b3fa3f3d3aa5f484124";
@@ -129,9 +143,7 @@ const friendList = async (req, res) => {
   );
 
   // 3️⃣ Log each friend’s name
-  populatedUser.friends.forEach((friend) => {
-    console.log(friend.fullname);
-  });
+  populatedUser.friends.forEach((friend) => {});
 
   // 3️⃣ Prepare response array (optional: cleaner output)
   const friendsList = populatedUser.friends.map((friend) => ({
@@ -176,4 +188,11 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { signUp, login, updateProfile, logout, friendList };
+module.exports = {
+  signUp,
+  login,
+  updateProfile,
+  logout,
+  friendList,
+  addFriend,
+};

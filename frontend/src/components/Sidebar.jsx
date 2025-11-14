@@ -5,11 +5,29 @@ import search from "../assets/people.png";
 import { Navigate, useNavigate } from "react-router-dom";
 import DummyUser from "../assets/DummyUser";
 import axios from "axios";
-const Sidebar = ({ SelectedUser, setSelectdUser,setSelectedUserDetails }) => {
-  const [friendList, setFriendList] = useState([]);
+const Sidebar = ({
+  SelectedUser,
+  setSelectdUser,
+  setSelectedUserDetails,
+  setisFriend,
+  friendList,
+  setFriendList,
+}) => {
+  
   const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
-  
+  const handleSuggestionClick = async (data) => {
+    let found = false;
+    for (let i = 0; i < friendList.length; i++) {
+      if (friendList[i]._id === data._id) {
+        found = true;
+        break;
+      }
+    }
+    setisFriend(found);
+    setSelectdUser(data._id);
+    setSelectedUserDetails(data);
+  };
   const searchFriend = async (text) => {
     setSearchFriendText(text);
     const response = await axios.get(
@@ -90,10 +108,8 @@ const Sidebar = ({ SelectedUser, setSelectdUser,setSelectedUserDetails }) => {
               <div
                 key={user._id}
                 className="flex items-center gap-2 p-2 hover:bg-[#3b2a63] cursor-pointer rounded-lg"
-                onClick={() => {console.log(user);
-                  setSelectdUser(user._id);
-                  setSelectedUserDetails(user);
-                  
+                onClick={() => {
+                  handleSuggestionClick(user);
                 }}
               >
                 <img
@@ -116,6 +132,7 @@ const Sidebar = ({ SelectedUser, setSelectdUser,setSelectedUserDetails }) => {
             onClick={() => {
               setSelectdUser(friend._id);
               setSelectedUserDetails(friend);
+              setisFriend(true);
             }}
             key={index}
             className="flex justify-between items-center p-2 border-b border-gray-700 text-amber-50 gap-2 cursor-pointer hover:bg-[#3b2a63] rounded-lg"
