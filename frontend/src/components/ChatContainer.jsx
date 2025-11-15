@@ -14,10 +14,8 @@ const ChatContainer = ({
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
-  
   const socketRef = useRef(null);
 
- 
   useEffect(() => {
     if (!currentUser?._id) return;
 
@@ -25,7 +23,7 @@ const ChatContainer = ({
 
     socketRef.current = io("http://localhost:5000", {
       withCredentials: true,
-      auth: { userId: currentUser._id }, 
+      auth: { userId: currentUser._id },
     });
 
     socketRef.current.on("connect", () => {
@@ -50,7 +48,15 @@ const ChatContainer = ({
           `http://localhost:5000/user/${SelectedUser}`,
           { withCredentials: true }
         );
-        setMessages(res.data || []);
+        const formatted = res.data.map((msg) => ({
+          ...msg,
+          time: new Date(msg.createdAt).toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        }));
+
+        setMessages(formatted);
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -65,17 +71,26 @@ const ChatContainer = ({
 
     const socket = socketRef.current;
 
-    const handleReceive = (newMessage) => {
+    const handleReceive = ({ newMessage, time }) => {
       if (
         newMessage.senderId === SelectedUser ||
         newMessage.receiverId === SelectedUser
       ) {
-        setMessages((prev) => [...prev, newMessage]);
+        // Add time to the message for UI
+        setMessages((prev) => [...prev, { ...newMessage, time }]);
       }
     };
 
     const handleSent = (newMessage) => {
-      setMessages((prev) => [...prev, newMessage]);
+      const formatted = {
+        ...newMessage,
+        time: new Date(newMessage.createdAt).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
+      setMessages((prev) => [...prev, formatted]);
     };
 
     socket.on("receiveMessage", handleReceive);
@@ -111,10 +126,9 @@ const ChatContainer = ({
       );
 
       if (response.data.success) {
-        const res = await axios.get(
-          "http://localhost:5000/user/friendList",
-          { withCredentials: true }
-        );
+        const res = await axios.get("http://localhost:5000/user/friendList", {
+          withCredentials: true,
+        });
         setFriendList(res.data.friends || []);
       }
     } catch (err) {
@@ -164,6 +178,10 @@ const ChatContainer = ({
                   }`}
                 >
                   {message.text}
+                  <br/>
+                  <p className="text-gray-300 text-[9px] ml-auto ">
+                    {message.time}
+                  </p>
                 </div>
 
                 <img
