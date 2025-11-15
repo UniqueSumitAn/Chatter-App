@@ -6,14 +6,13 @@ import { Navigate, useNavigate } from "react-router-dom";
 import DummyUser from "../assets/DummyUser";
 import axios from "axios";
 const Sidebar = ({
-  SelectedUser,
+  currentUser,
   setSelectdUser,
   setSelectedUserDetails,
   setisFriend,
   friendList,
   setFriendList,
 }) => {
-  
   const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
   const handleSuggestionClick = async (data) => {
@@ -72,7 +71,13 @@ const Sidebar = ({
           <div className=" absolute top-full right-0 z-20 w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100 hidden group-hover:block">
             <p
               className=" cursor-pointer text-sm"
-              onClick={() => navigate("/Profile")}
+              onClick={() =>
+                navigate("/Profile", {
+                  state: {
+                    currentUser: currentUser,
+                  },
+                })
+              }
             >
               Edit Profile
             </p>

@@ -12,16 +12,18 @@ const HomePage = () => {
   const [SelectedUserDetails, setSelectedUserDetails] = useState(null);
   const [isFriend, setisFriend] = useState(null);
   const currentUser = user;
+  console.log(currentUser)
   return (
     <div className=" border w-full h-screen sm:px-[15%] sm:py-[5%] overflow-auto">
       <div className="backdrop-blur-xl   rounded-2xl h-full min-h-0 grid gap-2 grid-cols-4 relative overflow-hidden">
         <Sidebar
-          SelectedUser={SelectedUser}
+          
           setSelectdUser={setSelectedUser}
           setSelectedUserDetails={setSelectedUserDetails}
           setisFriend={setisFriend}
           friendList={friendList}
           setFriendList={setFriendList}
+          currentUser={currentUser} 
         />
         {!SelectedUser && (
           <>
@@ -52,7 +54,6 @@ const HomePage = () => {
             {isFriend && (
               <div className="h-full min-h-0 flex flex-col overflow-y-auto">
                 <RightSidebar
-                 
                   currentUser={currentUser}
                   SelectedUserDetails={SelectedUserDetails}
                   isFriend={isFriend}
