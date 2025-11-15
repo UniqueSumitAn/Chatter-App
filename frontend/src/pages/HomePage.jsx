@@ -52,8 +52,8 @@ const HomePage = () => {
             {isFriend && (
               <div className="h-full min-h-0 flex flex-col overflow-y-auto">
                 <RightSidebar
-                  SelectedUser={SelectedUser}
-                  setSelectdUser={setSelectedUser}
+                 
+                  currentUser={currentUser}
                   SelectedUserDetails={SelectedUserDetails}
                   isFriend={isFriend}
                 />

@@ -15,6 +15,13 @@ const ChatContainer = ({
   const [text, setText] = useState("");
 
   const socketRef = useRef(null);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   useEffect(() => {
     if (!currentUser?._id) return;
@@ -178,7 +185,7 @@ const ChatContainer = ({
                   }`}
                 >
                   {message.text}
-                  <br/>
+                  <br />
                   <p className="text-gray-300 text-[9px] ml-auto ">
                     {message.time}
                   </p>
@@ -196,6 +203,7 @@ const ChatContainer = ({
                 />
               </div>
             ))}
+            <div ref={bottomRef}></div>
           </div>
 
           {/*  Message Input */}
@@ -203,6 +211,7 @@ const ChatContainer = ({
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Type Your Message"
               className="w-[80%] h-10 bg-purple-600 rounded-4xl p-5 text-white placeholder:text-center"
             ></input>

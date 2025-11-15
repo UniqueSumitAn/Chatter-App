@@ -2,12 +2,7 @@ import React from "react";
 import DummyUser from "../assets/DummyUser";
 import axios from "axios";
 
-const RightSidebar = ({
-  SelectedUser,
-  setSelectdUser,
-  SelectedUserDetails,
-  isFriend,
-}) => {
+const RightSidebar = ({ currentUser, SelectedUserDetails, isFriend }) => {
   console.log(SelectedUserDetails);
   const logout = async () => {
     console.log("logout button pressed");
@@ -17,23 +12,34 @@ const RightSidebar = ({
   };
 
   return (
-    <>
+    <div className=" flex flex-col justify-center items-center h-full min-h-0 backdrop-blur-lg bg-white/10 border border-white/20 rounded-l-xl">
+
+
+      <div className="absolute top-3 left-0 right-0 flex justify-between items-center px-3">
+        
+        <div className="flex items-center gap-2">
+          <img
+            src={currentUser.ProfilePic}
+            className="w-10 h-10 rounded-full"
+          />
+          <p className="text-white">{currentUser.fullname}</p>
+        </div>
+        
+        <button
+          className="backdrop-blur-lg bg-white/10 border border-white/20 px-4 py-2 rounded-lg text-black"
+          onClick={logout}
+        >
+          Logout
+        </button>
+      </div>
+
       {isFriend && (
-        <div className=" flex flex-col justify-center items-center h-full min-h-0 backdrop-blur-lg bg-white/10 border border-white/20 rounded-l-xl">
-          {/* profile pic */}
-          <img src={SelectedUserDetails.ProfilePic} />
-          <p>{SelectedUserDetails.Name}</p>
-          <button
-            className="bg-amber-600"
-            onClick={() => {
-              logout();
-            }}
-          >
-            logout
-          </button>
+        <div className="flex flex-col items-center justify-center h-full gap-4">
+          <img src={SelectedUserDetails.ProfilePic} className="w-50 h-50 " />
+          <p className="text-white text-lg">{SelectedUserDetails.fullname}</p>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
