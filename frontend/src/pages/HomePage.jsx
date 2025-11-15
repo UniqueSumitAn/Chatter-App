@@ -11,19 +11,21 @@ const HomePage = () => {
   const [SelectedUser, setSelectedUser] = useState(false);
   const [SelectedUserDetails, setSelectedUserDetails] = useState(null);
   const [isFriend, setisFriend] = useState(null);
+  const [RequestList, setRequestList] = useState([]);
   const currentUser = user;
-  console.log(currentUser)
+  console.log(currentUser);
   return (
     <div className=" border w-full h-screen sm:px-[15%] sm:py-[5%] overflow-auto">
       <div className="backdrop-blur-xl   rounded-2xl h-full min-h-0 grid gap-2 grid-cols-4 relative overflow-hidden">
         <Sidebar
-          
           setSelectdUser={setSelectedUser}
           setSelectedUserDetails={setSelectedUserDetails}
           setisFriend={setisFriend}
           friendList={friendList}
           setFriendList={setFriendList}
-          currentUser={currentUser} 
+          currentUser={currentUser}
+          RequestList={RequestList}
+          setRequestList={setRequestList}
         />
         {!SelectedUser && (
           <>

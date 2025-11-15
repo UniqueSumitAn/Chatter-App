@@ -113,51 +113,129 @@ const updateProfile = async (req, res) => {
   }
 };
 
-//add friend
-const addFriend = async (req, res) => {
-  const friend = req.body;
-  if (friend) {
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { $addToSet: { friends: friend._id } }, // $addToSet prevents duplicates
+//accept requests
+const acceptRequest = async (req, res) => {
+  const userId = req.user._id; // current user
+  const friendId = req.body._id; // sender of request
+
+  try {
+    // 1️⃣ Update current user (add friend + remove request)
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        $addToSet: { friends: friendId },
+        $pull: { requests: friendId },
+      },
       { new: true }
     );
+
+    // 2️⃣ Update sender of request (add current user as friend)
+    await User.findByIdAndUpdate(
+      friendId,
+      {
+        $addToSet: { friends: userId },
+        $pull: { requests: userId },
+      },
+      { new: true }
+    );
+
+    // 3️⃣ Fetch updated user with populated friends
+
+    const updatedUser = await User.findById(userId)
+      .populate("friends", "fullname email profilepic status")
+      .populate("requests", "fullname email profilepic status");
+
+    // 4️⃣ Format for frontend
+
+    const requestsList = updatedUser.requests.map((reqUser) => ({
+      _id: reqUser._id,
+      fullname: reqUser.fullname,
+      email: reqUser.email,
+      profilepic: reqUser.profilepic,
+      status: reqUser.status,
+    }));
+    console.log(req.body);
+    return res.json({
+      success: true,
+      newFriend: req.body,
+      requests: requestsList,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Error accepting request" });
   }
-  return res.json({ success: true });
+};
+
+//add friend
+const addFriend = async (req, res) => {
+  const senderId = req.user._id; // person sending request
+  const receiverId = req.body._id; // person receiving request
+
+  try {
+    // Add sender to receiver's request list
+    await User.findByIdAndUpdate(
+      receiverId,
+      {
+        $addToSet: { requests: senderId },
+      },
+      { new: true }
+    );
+
+    await User.findByIdAndUpdate(
+      senderId,
+      {
+        $addToSet: { friends: receiverId },
+      },
+      { new: true }
+    );
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Failed to send request" });
+  }
 };
 
 // friendList
 const friendList = async (req, res) => {
-  const friendId = "690d6b3fa3f3d3aa5f484124";
-  const user = await User.findById(req.user._id);
+  const userId = req.user._id;
 
-  // await User.findByIdAndUpdate(
-  //   req.user._id,
-  //   { $addToSet: { friends: friendId } },
-  //   { new: true }
-  // );
+  // 1️⃣ Populate friends AND requests at same time
+  const user = await User.findById(userId)
+    .populate("friends", "fullname email profilepic status")
+    .populate("requests", "fullname email profilepic status");
 
-  const populatedUser = await User.findById(req.user._id).populate(
-    "friends",
-    "fullname email profilepic online"
-  );
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
 
-  // 3️⃣ Log each friend’s name
-  populatedUser.friends.forEach((friend) => {});
-
-  // 3️⃣ Prepare response array (optional: cleaner output)
-  const friendsList = populatedUser.friends.map((friend) => ({
+  // 2️⃣ Prepare friends list
+  const friendsList = user.friends.map((friend) => ({
     _id: friend._id,
     fullname: friend.fullname,
     email: friend.email,
     profilepic: friend.profilepic,
-    online: friend.online,
+    status: friend.status,
   }));
 
+  // 3️⃣ Prepare requests list
+  const requestsList = user.requests.map((reqUser) => ({
+    _id: reqUser._id,
+    fullname: reqUser.fullname,
+    email: reqUser.email,
+    profilepic: reqUser.profilepic,
+    status: reqUser.status,
+  }));
+  console.log(user, "227");
+  // 4️⃣ Send response
   return res.status(200).json({
     success: true,
-    message: "Friend list fetched successfully",
-    friends: friendsList,
+    message: "Friend list & requests fetched successfully",
+    friends: friendsList, // 👈 separate variable
+    requests: requestsList, // 👈 separate variable
   });
 };
 
@@ -195,4 +273,5 @@ module.exports = {
   logout,
   friendList,
   addFriend,
+  acceptRequest,
 };

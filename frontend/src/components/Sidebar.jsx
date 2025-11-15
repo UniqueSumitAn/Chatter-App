@@ -12,9 +12,24 @@ const Sidebar = ({
   setisFriend,
   friendList,
   setFriendList,
+  RequestList,
+  setRequestList,
 }) => {
   const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
+  const acceptRequest = async (data) => {
+    const response = await axios.post(
+      "http://localhost:5000/user/acceptRequest",
+      data,
+      {
+        withCredentials: true,
+      }
+    );
+
+    setFriendList((prev) => [...prev, response.data.newFriend]);
+    setRequestList(response.data.requests || []);
+  };
+
   const handleSuggestionClick = async (data) => {
     let found = false;
     for (let i = 0; i < friendList.length; i++) {
@@ -49,7 +64,8 @@ const Sidebar = ({
           }
         );
         console.log(response);
-        setFriendList(response.data.friends || []); // ensure you handle empty responses safely
+        setFriendList(response.data.friends || []);
+        setRequestList(response.data.requests || []);
       } catch (error) {
         console.error("Error fetching friend list:", error);
         setFriendList([]); // fallback if request fails
@@ -132,6 +148,27 @@ const Sidebar = ({
 
       {/* friends list */}
       <div className=" overflow-y-auto hide-scrollbar mt-5 flex-1">
+        {RequestList.map((requests, index) => (
+          <div
+            key={index}
+            className="flex justify-between items-center p-2 border-b border-gray-700 text-amber-50 gap-2 cursor-pointer hover:bg-[#3b2a63] rounded-lg"
+          >
+            <div className="flex items-center gap-1">
+              <img
+                src={requests.ProfilePic}
+                alt={requests.fullname}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+              <span className=" ml-2">{requests.fullname}</span>
+            </div>
+            <span
+              className={requests.Online ? "text-green-300" : "text-gray-300"}
+            >
+              <button onClick={() => acceptRequest(requests)}>ACCEPT</button>
+            </span>
+          </div>
+        ))}
+
         {friendList.map((friend, index) => (
           <div
             onClick={() => {
