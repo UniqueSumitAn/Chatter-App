@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
+import EmojiPicker from "emoji-picker-react";
 
 const ChatContainer = ({
   SelectedUser,
@@ -14,9 +15,22 @@ const ChatContainer = ({
 }) => {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
+  const [showEmoji, setShowEmoji] = useState(false);
+  const emojiRef = useRef(null);
 
   const socketRef = useRef(null);
   const bottomRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (emojiRef.current && !emojiRef.current.contains(e.target)) {
+        setShowEmoji(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -27,26 +41,18 @@ const ChatContainer = ({
   useEffect(() => {
     if (!currentUser?._id) return;
 
-    console.log("🔌 Connecting socket for user:", currentUser._id);
-
     socketRef.current = io("http://localhost:5000", {
       withCredentials: true,
       auth: { userId: currentUser._id },
     });
 
-    socketRef.current.on("connect", () => {
-      console.log("🟢 Socket Connected:", socketRef.current.id);
-    });
-
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
-        console.log("🔴 Socket Disconnected");
       }
     };
   }, [currentUser]);
 
-  // Load previous messages when user changes
   useEffect(() => {
     const loadMessages = async () => {
       if (!SelectedUser) return;
@@ -73,7 +79,6 @@ const ChatContainer = ({
     loadMessages();
   }, [SelectedUser]);
 
-  //  Setup listeners for incoming messages
   useEffect(() => {
     if (!socketRef.current) return;
 
@@ -84,7 +89,6 @@ const ChatContainer = ({
         newMessage.senderId === SelectedUser ||
         newMessage.receiverId === SelectedUser
       ) {
-        // Add time to the message for UI
         setMessages((prev) => [...prev, { ...newMessage, time }]);
       }
     };
@@ -110,7 +114,6 @@ const ChatContainer = ({
     };
   }, [SelectedUser]);
 
-  //  Send message
   const handleSend = () => {
     if (!text.trim()) return;
     if (!socketRef.current) return;
@@ -122,9 +125,9 @@ const ChatContainer = ({
     });
 
     setText("");
+    setShowEmoji(false);
   };
 
-  //  Add friend
   const handleAddFriend = async (data) => {
     try {
       const response = await axios.post(
@@ -144,19 +147,18 @@ const ChatContainer = ({
       console.error("Error adding friend:", err);
     }
   };
+
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
     if (MessageRequest === "You both are friends.") {
-      // Start fade out after 4 seconds
       const fadeTimer = setTimeout(() => {
         setFadeOut(true);
       }, 4000);
 
-      // Remove completely after fade animation
       const hideTimer = setTimeout(() => {
         setMessageRequest(false);
-        setFadeOut(false); // reset for next time
+        setFadeOut(false);
       }, 5000);
 
       return () => {
@@ -166,11 +168,15 @@ const ChatContainer = ({
     }
   }, [MessageRequest]);
 
+  const handleEmojiClick = (emoji) => {
+    setText((prev) => prev + emoji.emoji);
+  };
+
   return (
     <div className="h-full min-h-0 rounded-xl shadow-xl backdrop-blur-lg bg-white/10 border border-white/20 flex flex-col">
       {isFriend ? (
         <>
-          {/*  Header */}
+          {/* Header */}
           <div className="flex items-center gap-3 py-3 mx-4 border-b border-stone-500">
             <img
               src={SelectedUserDetails.profilepic}
@@ -188,13 +194,13 @@ const ChatContainer = ({
               ></span>
             </p>
           </div>
+
           {MessageRequest && (
             <div
               className={`mx-4 mt-2 mb-3 p-3 rounded-xl bg-yellow-500/20 border border-yellow-400/30 
                 backdrop-blur-lg shadow-md flex items-center gap-3
                 transition-opacity duration-700 
-                ${fadeOut ? "opacity-0" : "opacity-100"}
-    `}
+                ${fadeOut ? "opacity-0" : "opacity-100"}`}
             >
               <span className="text-yellow-300 text-xl"></span>
               <p className="text-yellow-200 text-sm leading-tight">
@@ -203,7 +209,7 @@ const ChatContainer = ({
             </div>
           )}
 
-          {/*  Messages */}
+          {/* Messages */}
           <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar p-3 flex flex-col">
             {messages.map((message, index) => (
               <div
@@ -215,7 +221,7 @@ const ChatContainer = ({
                 }`}
               >
                 <div
-                  className={`mt-3 p-2 text-white min-w-18 ${
+                  className={`mt-3 p-2 text-white min-w-18 max-w-[70%] break-words whitespace-pre-wrap ${
                     message.senderId === currentUser._id
                       ? "ml-auto mr-8 rounded-tl-xl rounded-tr-xl rounded-bl-xl bg-purple-700"
                       : "mr-auto ml-8 rounded-tl-xl rounded-tr-xl rounded-br-xl bg-purple-500"
@@ -243,20 +249,37 @@ const ChatContainer = ({
             <div ref={bottomRef}></div>
           </div>
 
-          {/*  Message Input */}
-          <div className="flex justify-center items-center mb-3 mt-3 gap-3">
+          {/* Message input */}
+          <div className="relative flex justify-center items-center mb-3 mt-3 gap-3">
+            {showEmoji && (
+              <div className="absolute bottom-12 right-24 z-50" ref={emojiRef}>
+                <EmojiPicker theme="dark" onEmojiClick={handleEmojiClick} />
+              </div>
+            )}
+
+            <button
+              className="text-2xl text-white"
+              onClick={() => setShowEmoji(!showEmoji)}
+            >
+              😊
+            </button>
+
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Type Your Message"
-              className="w-[80%] h-10 bg-purple-600 rounded-4xl p-5 text-white placeholder:text-center"
+              className="w-[70%] h-10 bg-purple-600 rounded-4xl p-5 text-white placeholder:text-center"
             ></input>
-            <button onClick={handleSend}>send</button>
+
+            <button onClick={handleSend} className="text-white text-lg">
+              ➤
+            </button>
           </div>
         </>
       ) : (
-        /*  NOT FRIEND UI */
+        // not a friend
+
         <div className="h-full flex items-center justify-center">
           <div className="text-center p-8 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg max-w-sm mx-auto">
             <img
