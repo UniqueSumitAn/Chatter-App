@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     fullname: { type: String, required: true },
     password: { type: String, required: true },
-    profilepic: { type: String, default: "" },
+    profilepic: { type: String, default: "https://res.cloudinary.com/dmj3t5tyh/image/upload/v1763289617/933-9332131_profile-picture-default-png_1_wao5pl.jpg" },
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     socket_id: {

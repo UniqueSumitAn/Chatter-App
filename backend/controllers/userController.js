@@ -165,34 +165,100 @@ const acceptRequest = async (req, res) => {
     return res.json({ success: false, message: "Error accepting request" });
   }
 };
+const checkFriendList = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const friend = req.body;
+
+    const userList = await User.findById(userId).select("friends");
+    const friendList = await User.findById(friend._id).select("friends");
+
+    const isFriend = userList.friends.some((id) => id.equals(friend._id));
+    const alsoFriend = friendList.friends.some((id) => id.equals(userId));
+
+    // 🟢 Case 1: Both have added each other → mutual friends
+    if (isFriend && alsoFriend) {
+      return res.json({
+        success: true,
+        status: "friends",
+        message: "You both are friends.",
+      });
+    }
+
+    // 🟡 Case 2: You added them but they didn't accept yet
+    if (isFriend && !alsoFriend) {
+      return res.json({
+        success: true,
+        status: "requestSent",
+        message: "You sent a friend request. Waiting for them to accept.",
+      });
+    }
+
+    // 🟡 Case 3: They added you but you didn't accept yet
+    if (!isFriend && alsoFriend) {
+      return res.json({
+        success: true,
+        status: "requestReceived",
+        message: "You received a friend request.",
+      });
+    }
+
+    // 🔴 Case 4: No connection
+    return res.json({
+      success: true,
+      status: "none",
+      message: "No friend request exists.",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
 
 //add friend
 const addFriend = async (req, res) => {
   const senderId = req.user._id; // person sending request
   const receiverId = req.body._id; // person receiving request
+  const user = await User.findById(senderId).select("-password");
+  if (user) {
+    if (user.requests.some((id) => id.equals(receiverId))) {
+      await User.findByIdAndUpdate(
+        senderId,
+        {
+          $addToSet: { friends: receiverId },
+          $pull: { requests: receiverId },
+        },
+        { new: true }
+      );
+      return res.json({ success: true });
+    } else {
+      try {
+        // Add sender to receiver's request list
+        await User.findByIdAndUpdate(
+          receiverId,
+          {
+            $addToSet: { requests: senderId },
+          },
+          { new: true }
+        );
 
-  try {
-    // Add sender to receiver's request list
-    await User.findByIdAndUpdate(
-      receiverId,
-      {
-        $addToSet: { requests: senderId },
-      },
-      { new: true }
-    );
+        await User.findByIdAndUpdate(
+          senderId,
+          {
+            $addToSet: { friends: receiverId },
+          },
+          { new: true }
+        );
 
-    await User.findByIdAndUpdate(
-      senderId,
-      {
-        $addToSet: { friends: receiverId },
-      },
-      { new: true }
-    );
-
-    return res.json({ success: true });
-  } catch (error) {
-    console.log(error);
-    return res.json({ success: false, message: "Failed to send request" });
+        return res.json({ success: true });
+      } catch (error) {
+        console.log(error);
+        return res.json({ success: false, message: "Failed to send request" });
+      }
+    }
   }
 };
 
@@ -274,4 +340,5 @@ module.exports = {
   friendList,
   addFriend,
   acceptRequest,
+  checkFriendList,
 };

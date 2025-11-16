@@ -14,9 +14,23 @@ const Sidebar = ({
   setFriendList,
   RequestList,
   setRequestList,
+  setMessageRequest,
 }) => {
   const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
+
+  const messageRequest = async (data) => {
+    setSelectedUserDetails(data);
+    setSelectdUser(data._id);
+    setisFriend(true);
+    const response = await axios.post(
+      "http://localhost:5000/user/checkFriendList",
+      data,
+      { withCredentials: true }
+    );
+    setMessageRequest(response.data.message);
+  };
+
   const acceptRequest = async (data) => {
     const response = await axios.post(
       "http://localhost:5000/user/acceptRequest",
@@ -151,46 +165,64 @@ const Sidebar = ({
         {RequestList.map((requests, index) => (
           <div
             key={index}
-            className="flex justify-between items-center p-2 border-b border-gray-700 text-amber-50 gap-2 cursor-pointer hover:bg-[#3b2a63] rounded-lg"
+            className="flex flex-col justify-between items-center p-2 border-b border-gray-700 text-amber-50 gap-2 cursor-pointer hover:bg-[#3b2a63] rounded-lg"
           >
             <div className="flex items-center gap-1">
               <img
-                src={requests.ProfilePic}
+                src={requests.profilepic}
                 alt={requests.fullname}
                 className="w-12 h-12 rounded-full object-cover"
               />
               <span className=" ml-2">{requests.fullname}</span>
             </div>
-            <span
-              className={requests.Online ? "text-green-300" : "text-gray-300"}
-            >
-              <button onClick={() => acceptRequest(requests)}>ACCEPT</button>
-            </span>
+
+            <div className="p-4 flex flex-col gap-3">
+              <div className="flex gap-3">
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-500/40 backdrop-blur-sm border border-white/20 text-white hover:bg-blue-500/60 transition"
+                  onClick={() => messageRequest(requests)}
+                >
+                  Message
+                </button>
+
+                <button
+                  className="px-4 py-2 rounded-lg bg-red-700/40 backdrop-blur-sm border border-white/20 text-white hover:bg-red-700/60 transition"
+                  onClick={() => declineRequest(requests)}
+                >
+                  Decline
+                </button>
+              </div>
+
+              <button
+                className="px-4 py-2 rounded-lg bg-green-700/40 backdrop-blur-sm border border-white/20 text-white hover:bg-green-700/60 transition w-full"
+                onClick={() => acceptRequest(requests)}
+              >
+                Accept
+              </button>
+            </div>
           </div>
         ))}
 
         {friendList.map((friend, index) => (
           <div
             onClick={() => {
-              setSelectdUser(friend._id);
-              setSelectedUserDetails(friend);
-              setisFriend(true);
+              messageRequest(friend);
             }}
             key={index}
             className="flex justify-between items-center p-2 border-b border-gray-700 text-amber-50 gap-2 cursor-pointer hover:bg-[#3b2a63] rounded-lg"
           >
             <div className="flex items-center gap-1">
               <img
-                src={friend.ProfilePic}
+                src={friend.profilepic}
                 alt={friend.fullname}
                 className="w-12 h-12 rounded-full object-cover"
               />
               <span className=" ml-2">{friend.fullname}</span>
             </div>
             <span
-              className={friend.Online ? "text-green-300" : "text-gray-300"}
+              className={friend.status ? "text-green-300" : "text-gray-300"}
             >
-              {friend.Online ? " •Online" : "•Offline"}
+              {friend.status === "online" ? " •online" : "•Offline"}
             </span>
           </div>
         ))}

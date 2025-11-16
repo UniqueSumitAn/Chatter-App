@@ -4,12 +4,13 @@ import { io } from "socket.io-client";
 
 const ChatContainer = ({
   SelectedUser,
-  setSelectedUSer,
+  setMessageRequest,
   currentUser,
   SelectedUserDetails,
   isFriend,
   setFriendList,
-  friendList,
+  MessageRequest,
+  setRequestList,
 }) => {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
@@ -137,11 +138,33 @@ const ChatContainer = ({
           withCredentials: true,
         });
         setFriendList(res.data.friends || []);
+        setRequestList(res.data.requests);
       }
     } catch (err) {
       console.error("Error adding friend:", err);
     }
   };
+  const [fadeOut, setFadeOut] = useState(false);
+
+  useEffect(() => {
+    if (MessageRequest === "You both are friends.") {
+      // Start fade out after 4 seconds
+      const fadeTimer = setTimeout(() => {
+        setFadeOut(true);
+      }, 4000);
+
+      // Remove completely after fade animation
+      const hideTimer = setTimeout(() => {
+        setMessageRequest(false);
+        setFadeOut(false); // reset for next time
+      }, 5000);
+
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(hideTimer);
+      };
+    }
+  }, [MessageRequest]);
 
   return (
     <div className="h-full min-h-0 rounded-xl shadow-xl backdrop-blur-lg bg-white/10 border border-white/20 flex flex-col">
@@ -150,7 +173,7 @@ const ChatContainer = ({
           {/*  Header */}
           <div className="flex items-center gap-3 py-3 mx-4 border-b border-stone-500">
             <img
-              src={SelectedUserDetails.ProfilePic}
+              src={SelectedUserDetails.profilepic}
               alt={SelectedUserDetails.fullname}
               className="w-8 aspect-square rounded-full"
             />
@@ -158,13 +181,27 @@ const ChatContainer = ({
               {SelectedUserDetails.fullname}
               <span
                 className={`rounded-full w-2 h-2 ${
-                  SelectedUserDetails.Online === "online"
+                  SelectedUserDetails.status === "online"
                     ? "bg-green-300"
                     : "bg-gray-300"
                 }`}
               ></span>
             </p>
           </div>
+          {MessageRequest && (
+            <div
+              className={`mx-4 mt-2 mb-3 p-3 rounded-xl bg-yellow-500/20 border border-yellow-400/30 
+                backdrop-blur-lg shadow-md flex items-center gap-3
+                transition-opacity duration-700 
+                ${fadeOut ? "opacity-0" : "opacity-100"}
+    `}
+            >
+              <span className="text-yellow-300 text-xl"></span>
+              <p className="text-yellow-200 text-sm leading-tight">
+                {MessageRequest}
+              </p>
+            </div>
+          )}
 
           {/*  Messages */}
           <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar p-3 flex flex-col">
@@ -194,8 +231,8 @@ const ChatContainer = ({
                 <img
                   src={
                     message.senderId === currentUser._id
-                      ? currentUser.ProfilePic
-                      : SelectedUserDetails.ProfilePic
+                      ? currentUser.profilepic
+                      : SelectedUserDetails.profilepic
                   }
                   className={`w-8 aspect-square rounded-full ${
                     message.senderId === currentUser._id ? "ml-auto" : "mr-auto"
@@ -223,7 +260,7 @@ const ChatContainer = ({
         <div className="h-full flex items-center justify-center">
           <div className="text-center p-8 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg max-w-sm mx-auto">
             <img
-              src={SelectedUserDetails?.ProfilePic}
+              src={SelectedUserDetails?.profilepic}
               className="w-20 h-20 rounded-full mx-auto mb-4"
             />
             <h2 className="text-2xl font-semibold text-white mb-2">

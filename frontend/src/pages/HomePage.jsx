@@ -12,11 +12,12 @@ const HomePage = () => {
   const [SelectedUserDetails, setSelectedUserDetails] = useState(null);
   const [isFriend, setisFriend] = useState(null);
   const [RequestList, setRequestList] = useState([]);
+  const [MessageRequest, setMessageRequest] = useState(false)
   const currentUser = user;
   console.log(currentUser);
   return (
     <div className=" border w-full h-screen sm:px-[15%] sm:py-[5%] overflow-auto">
-      <div className="backdrop-blur-xl   rounded-2xl h-full min-h-0 grid gap-2 grid-cols-4 relative overflow-hidden">
+      <div className="backdrop-blur-xl rounded-2xl h-full min-h-0 grid gap-2 grid-cols-4 relative overflow-hidden">
         <Sidebar
           setSelectdUser={setSelectedUser}
           setSelectedUserDetails={setSelectedUserDetails}
@@ -26,6 +27,7 @@ const HomePage = () => {
           currentUser={currentUser}
           RequestList={RequestList}
           setRequestList={setRequestList}
+          setMessageRequest={setMessageRequest}
         />
         {!SelectedUser && (
           <>
@@ -45,12 +47,13 @@ const HomePage = () => {
             >
               <ChatContainer
                 SelectedUser={SelectedUser}
-                setSelectdUser={setSelectedUser}
                 currentUser={currentUser}
                 SelectedUserDetails={SelectedUserDetails}
                 isFriend={isFriend}
                 setFriendList={setFriendList}
-                friendList={friendList}
+                setRequestList={setRequestList}
+                MessageRequest={MessageRequest}
+                setMessageRequest={setMessageRequest}
               />
             </div>
             {isFriend && (

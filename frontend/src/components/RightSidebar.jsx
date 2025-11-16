@@ -25,7 +25,7 @@ const RightSidebar = ({ currentUser, SelectedUserDetails, isFriend }) => {
           className="flex items-center cursor-pointer gap-2"
         >
           <img
-            src={currentUser.ProfilePic}
+            src={currentUser.profilepic}
             className="w-10 h-10 rounded-full"
           />
           <p className="text-white">{currentUser.fullname}</p>
@@ -41,7 +41,7 @@ const RightSidebar = ({ currentUser, SelectedUserDetails, isFriend }) => {
 
       {isFriend && (
         <div className="flex flex-col items-center justify-center h-full gap-4">
-          <img src={SelectedUserDetails.ProfilePic} className="w-50 h-50 " />
+          <img src={SelectedUserDetails.profilepic} className="w-50 h-50 " />
           <p className="text-white text-lg">{SelectedUserDetails.fullname}</p>
         </div>
       )}
