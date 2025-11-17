@@ -15,10 +15,29 @@ const Sidebar = ({
   RequestList,
   setRequestList,
   setMessageRequest,
+  declineRequest,
+  setdeclineRequest,
 }) => {
   const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
-
+  const handledeclineRequest = async (data) => {
+    setdeclineRequest(data);
+    const response = await axios.post(
+      "http://localhost:5000/user/declinerequest",
+      data,
+      { withCredentials: true }
+    );
+    if (response.data.success) {
+      const friendlist = await axios.get(
+        "http://localhost:5000/user/friendList",
+        {
+          withCredentials: true,
+        }
+      );
+      setFriendList(friendlist.data.friends);
+      setRequestList(friendlist.data.requests);
+    }
+  };
   const messageRequest = async (data) => {
     setSelectedUserDetails(data);
     setSelectdUser(data._id);
@@ -187,7 +206,7 @@ const Sidebar = ({
 
                 <button
                   className="px-4 py-2 rounded-lg bg-red-700/40 backdrop-blur-sm border border-white/20 text-white hover:bg-red-700/60 transition"
-                  onClick={() => declineRequest(requests)}
+                  onClick={() => handledeclineRequest(requests)}
                 >
                   Decline
                 </button>
@@ -220,7 +239,9 @@ const Sidebar = ({
               <span className=" ml-2">{friend.fullname}</span>
             </div>
             <span
-              className={friend.status ? "text-green-300" : "text-gray-300"}
+              className={
+                friend.status === "online" ? "text-green-300" : "text-gray-300"
+              }
             >
               {friend.status === "online" ? " •online" : "•Offline"}
             </span>

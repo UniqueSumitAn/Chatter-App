@@ -12,7 +12,8 @@ const HomePage = () => {
   const [SelectedUserDetails, setSelectedUserDetails] = useState(null);
   const [isFriend, setisFriend] = useState(null);
   const [RequestList, setRequestList] = useState([]);
-  const [MessageRequest, setMessageRequest] = useState(false)
+  const [MessageRequest, setMessageRequest] = useState(false);
+  const [declineRequest, setdeclineRequest] = useState();
   const currentUser = user;
   console.log(currentUser);
   return (
@@ -28,6 +29,8 @@ const HomePage = () => {
           RequestList={RequestList}
           setRequestList={setRequestList}
           setMessageRequest={setMessageRequest}
+          declineRequest={declineRequest}
+          setdeclineRequest={setdeclineRequest}
         />
         {!SelectedUser && (
           <>

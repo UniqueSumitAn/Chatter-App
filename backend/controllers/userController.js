@@ -112,6 +112,28 @@ const updateProfile = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+// decline request
+const declineRequest = async (req, res) => {
+  const userId = req.user._id; // current user
+  const friendId = req.body._id; // declined friend request
+  await User.findByIdAndUpdate(
+    userId,
+    {
+      $pull: { requests: friendId },
+    },
+    { new: true }
+  );
+
+  await User.findByIdAndUpdate(
+    friendId,
+    {
+      $pull: { friends: userId },
+    },
+    { new: true }
+  );
+
+  return res.json({ success: true, message: "declined request" });
+};
 
 //accept requests
 const acceptRequest = async (req, res) => {
@@ -341,4 +363,5 @@ module.exports = {
   addFriend,
   acceptRequest,
   checkFriendList,
+  declineRequest,
 };
