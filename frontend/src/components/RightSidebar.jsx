@@ -4,7 +4,7 @@ import { useContext } from "react";
 import DummyUser from "../assets/DummyUser";
 import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
-
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const RightSidebar = ({
   SelectedUserDetails,
   isFriend,
@@ -14,7 +14,7 @@ const RightSidebar = ({
   const { currentUser, setcurrentUser } = useContext(UserContext);
   const [showImageModal, setShowImageModal] = useState(false);
   const logout = async () => {
-    const response = await axios.post("http://localhost:5000/user/logout", {
+    const response = await axios.post(`${API_URL}/user/logout`, {
       withCredentials: true,
     });
   };

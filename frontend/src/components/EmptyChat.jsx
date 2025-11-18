@@ -3,6 +3,7 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useLocation } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import {useContext} from "react";
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const EmptyChat = () => {
   const location = useLocation();
   const user = location.state || {};

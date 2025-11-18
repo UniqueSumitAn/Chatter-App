@@ -6,7 +6,7 @@ import ChatContainer from "../components/ChatContainer";
 import RightSidebar from "../components/RightSidebar";
 import EmptyChat from "../components/EmptyChat";
 import { useLocation } from "react-router-dom";
-
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const HomePage = () => {
   const location = useLocation();
   const { user, user_id } = location.state || {};

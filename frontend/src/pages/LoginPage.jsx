@@ -3,7 +3,7 @@ import Interactivemodel from "../components/Interactivemodel";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
-
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const LoginPage = () => {
   const { currentUser, setcurrentUser } = useContext(UserContext);
   const [currentState, setcurrentState] = useState("Sign up");
@@ -38,7 +38,7 @@ const LoginPage = () => {
     try {
       if (currentState === "Sign up") {
         const response = await axios.post(
-          "http://localhost:5000/user/signup",
+          `${API_URL}/user/signup`,
           signUpFormDetails,
           {
             withCredentials: true,
@@ -58,7 +58,7 @@ const LoginPage = () => {
         }
       } else {
         const response = await axios.post(
-          "http://localhost:5000/user/login",
+          `${API_URL}/user/login`,
           loginFormDetails,
           {
             withCredentials: true,

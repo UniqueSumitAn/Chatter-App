@@ -7,6 +7,7 @@ import search from "../assets/people.png";
 import { Navigate, useNavigate } from "react-router-dom";
 import DummyUser from "../assets/DummyUser";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const Sidebar = ({
   setSelectdUser,
   setSelectedUserDetails,
@@ -25,13 +26,13 @@ const Sidebar = ({
   const handledeclineRequest = async (data) => {
     setdeclineRequest(data);
     const response = await axios.post(
-      "http://localhost:5000/user/declinerequest",
+      `${API_URL}:5000/user/declinerequest`,
       data,
       { withCredentials: true }
     );
     if (response.data.success) {
       const friendlist = await axios.get(
-        "http://localhost:5000/user/friendList",
+        `${API_URL}:5000/user/friendList`,
         {
           withCredentials: true,
         }
@@ -45,7 +46,7 @@ const Sidebar = ({
     setSelectdUser(data._id);
     setisFriend(true);
     const response = await axios.post(
-      "http://localhost:5000/user/checkFriendList",
+      `${API_URL}/user/checkFriendList`,
       data,
       { withCredentials: true }
     );
@@ -54,7 +55,7 @@ const Sidebar = ({
 
   const acceptRequest = async (data) => {
     const response = await axios.post(
-      "http://localhost:5000/user/acceptRequest",
+      `${API_URL}/user/acceptRequest`,
       data,
       {
         withCredentials: true,
@@ -80,7 +81,7 @@ const Sidebar = ({
   const searchFriend = async (text) => {
     setSearchFriendText(text);
     const response = await axios.get(
-      `http://localhost:5000/user/searchfriend?query=${text}`,
+       `${API_URL}/user/searchfriend?query=${text}`,
       {
         withCredentials: true,
       }
@@ -92,7 +93,7 @@ const Sidebar = ({
     const fetchFriendList = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/user/friendList",
+          `${API_URL}:5000/user/friendList`,
           {
             withCredentials: true,
           }

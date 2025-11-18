@@ -4,7 +4,7 @@ import {useContext} from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 import EmojiPicker from "emoji-picker-react";
-
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const ChatContainer = ({
   SelectedUser,
   setMessageRequest,
@@ -44,7 +44,7 @@ const ChatContainer = ({
   useEffect(() => {
     if (!currentUser?._id) return;
 
-    socketRef.current = io("http://localhost:5000", {
+    socketRef.current = io(`${API_URL}`, {
       withCredentials: true,
       auth: { userId: currentUser._id },
     });
@@ -62,7 +62,7 @@ const ChatContainer = ({
 
       try {
         const res = await axios.get(
-          `http://localhost:5000/user/${SelectedUser}`,
+           `${API_URL}/user/${SelectedUser}`,
           { withCredentials: true }
         );
         const formatted = res.data.map((msg) => ({
@@ -134,13 +134,13 @@ const ChatContainer = ({
   const handleAddFriend = async (data) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/user/addFriend",
+        `${API_URL}/user/addFriend`,
         data,
         { withCredentials: true }
       );
 
       if (response.data.success) {
-        const res = await axios.get("http://localhost:5000/user/friendList", {
+        const res = await axios.get(`${API_URL}:5000/user/friendList`, {
           withCredentials: true,
         });
         setFriendList(res.data.friends || []);

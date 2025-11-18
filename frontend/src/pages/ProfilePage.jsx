@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import { useContext } from "react";
-
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const ProfilePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/user/updateProfile",
+        `${API_URL}/user/updateProfile`,
         formData,
         {
           withCredentials: true,
