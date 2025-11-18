@@ -1,7 +1,7 @@
 const generateToken = require("../lib/utils/utils");
 const User = require("../Model/User");
 const bcrypt = require("bcrypt");
-const cloudinary = require("../lib/Cloudinary");
+const streamUpload = require("../lib/Cloudinary");
 const cookie = require("cookie");
 const fs = require("fs");
 // sign up a new user
@@ -98,24 +98,27 @@ const updateProfile = async (req, res) => {
     const userId = req.user._id;
     let updateData = {};
 
-    // 🟢 If image uploaded → upload to Cloudinary
+    // 🟢 Single file upload (profilepic)
     if (req.file) {
-      const localPath = req.file.path;
-
-      const uploaded = await cloudinary.uploader.upload(localPath, {
-        folder: "my_uploads",
-        resource_type: "auto",
-      });
-
+      const uploaded = await streamUpload(req.file.buffer, "profile_pics");
       updateData.profilepic = uploaded.secure_url;
-      fs.unlinkSync(localPath);
     }
+
+    // 🟢 Multiple files upload (optional)
+    if (req.files && req.files.length > 0) {
+      updateData.files = [];
+      for (const file of req.files) {
+        const uploaded = await streamUpload(file.buffer, "user_files");
+        updateData.files.push(uploaded.secure_url);
+      }
+    }
+
     // 🟢 Update fullname if provided
     if (req.body.fullname) {
       updateData.fullname = req.body.fullname;
     }
 
-    // 🟢 Final DB update (one request)
+    // 🟢 Save updated user
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $set: updateData },
@@ -124,6 +127,7 @@ const updateProfile = async (req, res) => {
 
     return res.json({ success: true, user: updatedUser });
   } catch (error) {
+    console.error(error);
     return res.json({ success: false, message: error.message });
   }
 };
