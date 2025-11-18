@@ -1,19 +1,17 @@
-const express = require("express");
 const multer = require("multer");
-const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 
-const app = express();
-app.use(cors());
+// Use Vercel writable temp directory
+const uploadPath = path.join(os.tmpdir(), "uploads");
 
-// Create upload folder automatically
-const uploadPath = path.join(__dirname, "tmp/uploads");
-
+// Ensure the temp folder exists
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
 
+// Multer storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadPath);
@@ -25,6 +23,7 @@ const storage = multer.diskStorage({
   },
 });
 
+// Export multer instance
 const upload = multer({ storage });
 
 module.exports = upload;
