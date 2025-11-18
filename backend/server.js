@@ -29,7 +29,9 @@ app.use("/user", userRouter);
 connectdb();
 
 // WebSocket(server);
-const PORT = process.env.PORT || 3000;
+ if(process.env.NODE_ENV!=="production")
+{const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("server connected: ", PORT);
-});
+});}
+export default server;
