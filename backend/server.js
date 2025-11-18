@@ -43,4 +43,4 @@ if (process.env.NODE_ENV !== "production") {
     console.log("server connected: ", PORT);
   });
 }
-export default server;
+module.exports = server;
