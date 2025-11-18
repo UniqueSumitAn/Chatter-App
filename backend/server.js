@@ -1,14 +1,14 @@
+require("dotenv").config();
 const express = require("express");
 const http = require("http");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const connectdb = require("./lib/db");
 const userRouter = require("./routes/userRoutes");
 const {chat} = require("./controllers/messageController");
 // const websocket = require("./webSocket/websocket");
 
-dotenv.config();
+
 const app = express();
 const server = http.createServer(app);
 chat(server);

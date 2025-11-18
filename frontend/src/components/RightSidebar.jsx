@@ -2,10 +2,16 @@ import React from "react";
 import DummyUser from "../assets/DummyUser";
 import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
-const RightSidebar = ({ currentUser, SelectedUserDetails, isFriend }) => {
-  console.log(SelectedUserDetails);
+const RightSidebar = ({
+  currentUser,
+  SelectedUserDetails,
+  isFriend,
+  RequestList,
+  friendList,
+  setcurrentUser,
+}) => {
+  SelectedUserDetails;
   const logout = async () => {
-    console.log("logout button pressed");
     const response = await axios.post("http://localhost:5000/user/logout", {
       withCredentials: true,
     });
@@ -19,6 +25,9 @@ const RightSidebar = ({ currentUser, SelectedUserDetails, isFriend }) => {
             navigate("/Profile", {
               state: {
                 currentUser: currentUser,
+                RequestList,
+                friendList,
+                setcurrentUser,
               },
             })
           }

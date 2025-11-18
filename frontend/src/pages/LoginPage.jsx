@@ -50,8 +50,8 @@ const LoginPage = () => {
                 user_id:response.data.user_id,
               },
             })
-          : console.log(response.data.message);
-        console.log(response.data);
+          :  (response.data.message);
+        
       } else {
         const response = await axios.post("http://localhost:5000/user/login", loginFormDetails,{
           withCredentials:true,
@@ -63,8 +63,8 @@ const LoginPage = () => {
                 user_id:response.data.user_id,
               },
             })
-          : console.log(response.data.message);
-        console.log(response.data);
+          :  (response.data.message);
+         
       }
     } catch (error) {
       console.error(error);

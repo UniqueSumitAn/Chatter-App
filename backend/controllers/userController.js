@@ -3,6 +3,7 @@ const User = require("../Model/User");
 const bcrypt = require("bcrypt");
 const cloudinary = require("../lib/Cloudinary");
 const cookie = require("cookie");
+const fs = require("fs");
 // sign up a new user
 const signUp = async (req, res) => {
   const { email, fullname, password, profilepic, friends } = req.body;
@@ -41,7 +42,7 @@ const signUp = async (req, res) => {
       message: "user created successfully",
     });
   } catch (error) {
-    console.log(error);
+    error;
     return res.json({ success: false, message: error.message });
   }
 };
@@ -82,7 +83,7 @@ const login = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error.message);
+    error.message;
     res.json({ success: false, message: error.message });
   }
 };
@@ -90,28 +91,43 @@ const login = async (req, res) => {
 // to update user profile details
 const updateProfile = async (req, res) => {
   try {
-    const { email, fullname, password, profilepic } = req.body;
-    const userId = req.user;
-    let updateddata;
-    if (!profilepiic) {
-      updateddata = await User.findByIdAndUpdate(
-        userId,
-        { fullname, email, password },
-        { new: true }
-      );
-    } else {
-      const upload = await cloudinary.UploadStream.upload(profilepic);
-      updateddata = await User.findByIdAndUpdate(
-        userId,
-        { profilepic: upload.secure_url, fullname, password, email },
-        { new: true }
-      );
+    if (req.user._id != req.body._id) {
+      return res.json({ success: false, message: "Unauthorized" });
     }
-    return res.json({ success: true, user: updateddata });
+
+    const userId = req.user._id;
+    let updateData = {};
+
+    // 🟢 If image uploaded → upload to Cloudinary
+    if (req.file) {
+      const localPath = req.file.path;
+
+      const uploaded = await cloudinary.uploader.upload(localPath, {
+        folder: "my_uploads",
+        resource_type: "auto",
+      });
+
+      updateData.profilepic = uploaded.secure_url;
+      fs.unlinkSync(localPath);
+    }
+    // 🟢 Update fullname if provided
+    if (req.body.fullname) {
+      updateData.fullname = req.body.fullname;
+    }
+
+    // 🟢 Final DB update (one request)
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true }
+    ).select("-password");
+
+    return res.json({ success: true, user: updatedUser });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    return res.json({ success: false, message: error.message });
   }
 };
+
 // decline request
 const declineRequest = async (req, res) => {
   const userId = req.user._id; // current user
@@ -176,14 +192,14 @@ const acceptRequest = async (req, res) => {
       profilepic: reqUser.profilepic,
       status: reqUser.status,
     }));
-    console.log(req.body);
+    req.body;
     return res.json({
       success: true,
       newFriend: req.body,
       requests: requestsList,
     });
   } catch (error) {
-    console.log(error);
+    error;
     return res.json({ success: false, message: "Error accepting request" });
   }
 };
@@ -277,7 +293,7 @@ const addFriend = async (req, res) => {
 
         return res.json({ success: true });
       } catch (error) {
-        console.log(error);
+        error;
         return res.json({ success: false, message: "Failed to send request" });
       }
     }
@@ -317,7 +333,7 @@ const friendList = async (req, res) => {
     profilepic: reqUser.profilepic,
     status: reqUser.status,
   }));
-  console.log(user, "227");
+  user, "227";
   // 4️⃣ Send response
   return res.status(200).json({
     success: true,
@@ -349,7 +365,7 @@ const logout = async (req, res) => {
 
     return res.json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    console.log(error.message);
+    error.message;
     res.status(500).json({ success: false, message: "Logout failed" });
   }
 };

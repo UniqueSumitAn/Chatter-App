@@ -17,6 +17,7 @@ const Sidebar = ({
   setMessageRequest,
   declineRequest,
   setdeclineRequest,
+  setcurrentUser,
 }) => {
   const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
@@ -89,14 +90,14 @@ const Sidebar = ({
   useEffect(() => {
     const fetchFriendList = async () => {
       try {
-        console.log("effect hit");
+         
         const response = await axios.get(
           "http://localhost:5000/user/friendList",
           {
             withCredentials: true,
           }
         );
-        console.log(response);
+        
         setFriendList(response.data.friends || []);
         setRequestList(response.data.requests || []);
       } catch (error) {
@@ -124,6 +125,8 @@ const Sidebar = ({
                 navigate("/Profile", {
                   state: {
                     currentUser: currentUser,
+                    RequestList,
+                    friendList,
                   },
                 })
               }

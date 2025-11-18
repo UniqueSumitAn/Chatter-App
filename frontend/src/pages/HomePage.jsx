@@ -14,8 +14,9 @@ const HomePage = () => {
   const [RequestList, setRequestList] = useState([]);
   const [MessageRequest, setMessageRequest] = useState(false);
   const [declineRequest, setdeclineRequest] = useState();
-  const currentUser = user;
-  console.log(currentUser);
+
+  const [currentUser, setcurrentUser] = useState(user);
+
   return (
     <div className=" border w-full h-screen sm:px-[15%] sm:py-[5%] overflow-auto">
       <div className="backdrop-blur-xl rounded-2xl h-full min-h-0 grid gap-2 grid-cols-4 relative overflow-hidden">
@@ -31,6 +32,7 @@ const HomePage = () => {
           setMessageRequest={setMessageRequest}
           declineRequest={declineRequest}
           setdeclineRequest={setdeclineRequest}
+          setcurrentUser={setcurrentUser}
         />
         {!SelectedUser && (
           <>
@@ -65,6 +67,9 @@ const HomePage = () => {
                   currentUser={currentUser}
                   SelectedUserDetails={SelectedUserDetails}
                   isFriend={isFriend}
+                  RequestList={RequestList}
+                  friendList={friendList}
+                  setcurrentUser={setcurrentUser}
                 />
               </div>
             )}

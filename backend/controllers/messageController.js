@@ -15,7 +15,7 @@ const searchFriendsUserforSidebar = async (req, res) => {
 
     return res.json(users);
   } catch (error) {
-    console.log(error.message);
+    
     res.json({ success: false, message: error.message });
   }
 };
@@ -89,7 +89,7 @@ const chat = (server) => {
     if (user_id) {
       onlineUsers.set(user_id, socket.id);
 
-      console.log(socket_id, "<-socketid::userid->", user_id);
+       console.log(socket_id, "<-socketid::userid->", user_id);
       const user = await User.findByIdAndUpdate(
         `${user_id}`, // The user _id
         { $set: { socket_id: socket.id } }, // The update operation
@@ -112,18 +112,18 @@ const chat = (server) => {
           minute: "2-digit",
         });
 
-        console.log(time);
+     
         io.to(receiverSocketId).emit("receiveMessage", { newMessage, time });
-        console.log("104 recievemessage emitted", receiverSocketId);
+        
       }
       // emit message to sender to update senders ui
       io.to(socket.id).emit("messageSent", newMessage);
-      console.log("108 recievemessage sent emitted");
+       console.log("108 recievemessage sent emitted");
     });
 
     socket.on("disconnect", async () => {
       let disconnectedUser = null;
-      console.log("🔴75 User disconnected:", socket.id);
+      
       // Find which user had this socket id
       for (const [userId, id] of onlineUsers.entries()) {
         if (id === socket.id) {
@@ -137,7 +137,7 @@ const chat = (server) => {
         if (user) {
           user.status = "offline";
           await user.save();
-          console.log(onlineUsers.size, "  128");
+         
         }
       }
     });
