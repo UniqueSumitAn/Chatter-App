@@ -239,7 +239,7 @@ const Sidebar = ({
                 alt={friend.fullname}
                 className="w-12 h-12 rounded-full object-cover"
               />
-              <span className=" ml-2">{friend.fullname}</span>
+              <span className=" ml-2 truncate max-w-22">{friend.fullname}</span>
             </div>
             <span
               className={
