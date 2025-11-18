@@ -14,13 +14,19 @@ const server = http.createServer(app);
 chat(server);
 app.use(express.json());
 app.use(cookieParser())
+const allowedOrigins = [
+  "http://localhost:5173",          // Local development
+  "https://chatter-app-mu.vercel.app/" // Vercel frontend
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // your React app
+    origin: allowedOrigins, // simple array whitelist
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    credentials: true,      // allow cookies and auth headers
   })
 );
+
 
 //routes
 app.use("/user", userRouter);

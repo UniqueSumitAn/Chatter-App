@@ -50,10 +50,13 @@ const getMessages = async (req, res) => {
 
 const chat = (server) => {
   let onlineUsers = new Map();
-
+const allowedOrigins = [
+  "http://localhost:5173",          // Local development
+  "https://your-frontend.vercel.app" // Vercel frontend
+];
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: allowedOrigins,
       methods: ["GET", "POST"],
       credentials: true,
     },
