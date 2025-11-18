@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { UserContext } from "../context/UserContext";
+import {useContext} from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 import EmojiPicker from "emoji-picker-react";
@@ -6,13 +8,14 @@ import EmojiPicker from "emoji-picker-react";
 const ChatContainer = ({
   SelectedUser,
   setMessageRequest,
-  currentUser,
+  
   SelectedUserDetails,
   isFriend,
   setFriendList,
   MessageRequest,
   setRequestList,
 }) => {
+  const { currentUser, setcurrentUser } = useContext(UserContext);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
@@ -181,7 +184,7 @@ const ChatContainer = ({
             <img
               src={SelectedUserDetails.profilepic}
               alt={SelectedUserDetails.fullname}
-              className="w-8 aspect-square rounded-full"
+              className="w-8 aspect-square rounded-full object-cover"
             />
             <p className="flex-1 text-lg text-white flex items-center gap-2">
               {SelectedUserDetails.fullname}
@@ -240,7 +243,7 @@ const ChatContainer = ({
                       ? currentUser.profilepic
                       : SelectedUserDetails.profilepic
                   }
-                  className={`w-8 aspect-square rounded-full ${
+                  className={`w-8 object-cover aspect-square rounded-full ${
                     message.senderId === currentUser._id ? "ml-auto" : "mr-auto"
                   }`}
                 />
@@ -284,7 +287,7 @@ const ChatContainer = ({
           <div className="text-center p-8 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg max-w-sm mx-auto">
             <img
               src={SelectedUserDetails?.profilepic}
-              className="w-20 h-20 rounded-full mx-auto mb-4"
+              className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
             />
             <h2 className="text-2xl font-semibold text-white mb-2">
               {SelectedUserDetails?.fullname}

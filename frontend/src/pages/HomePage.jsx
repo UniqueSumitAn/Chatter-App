@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { UserContext } from "../context/UserContext";
+import { useContext } from "react";
 import Sidebar from "../components/Sidebar";
 import ChatContainer from "../components/ChatContainer";
 import RightSidebar from "../components/RightSidebar";
 import EmptyChat from "../components/EmptyChat";
 import { useLocation } from "react-router-dom";
+
 const HomePage = () => {
   const location = useLocation();
   const { user, user_id } = location.state || {};
@@ -15,7 +18,7 @@ const HomePage = () => {
   const [MessageRequest, setMessageRequest] = useState(false);
   const [declineRequest, setdeclineRequest] = useState();
 
-  const [currentUser, setcurrentUser] = useState(user);
+  const { currentUser, setcurrentUser } = useContext(UserContext);
 
   return (
     <div className=" border w-full h-screen sm:px-[15%] sm:py-[5%] overflow-auto">
@@ -26,20 +29,18 @@ const HomePage = () => {
           setisFriend={setisFriend}
           friendList={friendList}
           setFriendList={setFriendList}
-          currentUser={currentUser}
           RequestList={RequestList}
           setRequestList={setRequestList}
           setMessageRequest={setMessageRequest}
           declineRequest={declineRequest}
           setdeclineRequest={setdeclineRequest}
-          setcurrentUser={setcurrentUser}
         />
         {!SelectedUser && (
           <>
             <div
               className={`col-span-3 flex justify-center items-center h-full w-full overflow-y-auto`}
             >
-              <EmptyChat currentUser={currentUser} />
+              <EmptyChat />
             </div>
           </>
         )}
@@ -52,7 +53,6 @@ const HomePage = () => {
             >
               <ChatContainer
                 SelectedUser={SelectedUser}
-                currentUser={currentUser}
                 SelectedUserDetails={SelectedUserDetails}
                 isFriend={isFriend}
                 setFriendList={setFriendList}
@@ -64,12 +64,10 @@ const HomePage = () => {
             {isFriend && (
               <div className="h-full min-h-0 flex flex-col overflow-y-auto">
                 <RightSidebar
-                  currentUser={currentUser}
                   SelectedUserDetails={SelectedUserDetails}
                   isFriend={isFriend}
                   RequestList={RequestList}
                   friendList={friendList}
-                  setcurrentUser={setcurrentUser}
                 />
               </div>
             )}

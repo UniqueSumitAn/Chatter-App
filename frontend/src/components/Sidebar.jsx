@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { UserContext } from "../context/UserContext";
+import {useContext} from "react";
 import chatIcon from "../assets/team.png";
 import menu from "../assets/dots.png";
 import search from "../assets/people.png";
@@ -6,7 +8,6 @@ import { Navigate, useNavigate } from "react-router-dom";
 import DummyUser from "../assets/DummyUser";
 import axios from "axios";
 const Sidebar = ({
-  currentUser,
   setSelectdUser,
   setSelectedUserDetails,
   setisFriend,
@@ -17,8 +18,8 @@ const Sidebar = ({
   setMessageRequest,
   declineRequest,
   setdeclineRequest,
-  setcurrentUser,
 }) => {
+  const { currentUser, setcurrentUser } = useContext(UserContext);
   const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
   const handledeclineRequest = async (data) => {
@@ -90,14 +91,13 @@ const Sidebar = ({
   useEffect(() => {
     const fetchFriendList = async () => {
       try {
-         
         const response = await axios.get(
           "http://localhost:5000/user/friendList",
           {
             withCredentials: true,
           }
         );
-        
+
         setFriendList(response.data.friends || []);
         setRequestList(response.data.requests || []);
       } catch (error) {
@@ -124,7 +124,7 @@ const Sidebar = ({
               onClick={() =>
                 navigate("/Profile", {
                   state: {
-                    currentUser: currentUser,
+                    
                     RequestList,
                     friendList,
                   },

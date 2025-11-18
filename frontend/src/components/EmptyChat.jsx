@@ -1,9 +1,12 @@
 import React from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useLocation } from "react-router-dom";
-const EmptyChat = ({ currentUser }) => {
+import { UserContext } from "../context/UserContext";
+import {useContext} from "react";
+const EmptyChat = () => {
   const location = useLocation();
   const user = location.state || {};
+  const { currentUser, setcurrentUser } = useContext(UserContext);
   return (
     <div className="flex-1 h-full min-h-0 rounded-xl shadow-xl backdrop-blur-lg bg-white/10 border border-white/20 flex justify-center items-center flex-col ">
       <div className=" aspect-square ">

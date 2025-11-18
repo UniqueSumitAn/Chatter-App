@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Interactivemodel from "../components/Interactivemodel";
 import axios from "axios";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 const LoginPage = () => {
+  const { currentUser, setcurrentUser } = useContext(UserContext);
   const [currentState, setcurrentState] = useState("Sign up");
   const [signUpFormDetails, setsignUpFormDetails] = useState({
     fullname: "",
@@ -43,28 +45,37 @@ const LoginPage = () => {
           }
         );
 
-        response.data.success
-          ? navigate("/Home", {
-              state: {
-                user: response.data.user,
-                user_id:response.data.user_id,
-              },
-            })
-          :  (response.data.message);
-        
+        if (response.data.success) {
+          navigate("/Home", {
+            state: {
+              user: response.data.user,
+              user_id: response.data.user_id,
+            },
+          });
+          setcurrentUser(response.data.user);
+        } else {
+          console.log(response.data.message);
+        }
       } else {
-        const response = await axios.post("http://localhost:5000/user/login", loginFormDetails,{
-          withCredentials:true,
-        });
-        response.data.success
-          ? navigate("/Home", {
-              state: {
-                user: response.data.user,
-                user_id:response.data.user_id,
-              },
-            })
-          :  (response.data.message);
-         
+        const response = await axios.post(
+          "http://localhost:5000/user/login",
+          loginFormDetails,
+          {
+            withCredentials: true,
+          }
+        );
+
+        if (response.data.success) {
+          navigate("/Home", {
+            state: {
+              user: response.data.user,
+              user_id: response.data.user_id,
+            },
+          });
+          setcurrentUser(response.data.user);
+        } else {
+          console.log(response.data.message);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -137,7 +148,6 @@ const LoginPage = () => {
 
               <button
                 type="submit"
-                
                 className="cursor-pointer w-[60%] m-auto h-12 flex justify-center items-center pl-3 pr-3 bg-[#51074b] rounded-full text-white  "
               >
                 {currentState == "Sign up" ? "Create Account" : "Login Now"}

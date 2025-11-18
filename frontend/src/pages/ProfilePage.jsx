@@ -1,10 +1,17 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+
+import { UserContext } from "../context/UserContext";
+import { useContext } from "react";
 
 const ProfilePage = () => {
   const location = useLocation();
-  const { currentUser, RequestList, friendList } = location.state || {};
+  const navigate = useNavigate();
+
+  const { currentUser, setcurrentUser } = useContext(UserContext);
+
+  const { RequestList, friendList } = location.state || {};
   const [showImageModal, setShowImageModal] = useState(false);
 
   // State for editing
@@ -25,7 +32,7 @@ const ProfilePage = () => {
     formData.append("fullname", name);
     formData.append("_id", currentUser._id);
     if (Newfile) formData.append("profilepic", Newfile);
-    
+
     console.log(
       // send formData to backend
       "Saving changes..."
@@ -39,9 +46,9 @@ const ProfilePage = () => {
           headers: { "Content-Type": "multipart/form-data" }, // ✅ file upload
         }
       );
-
-
-      
+      console.log(response.data.user);
+      console.log(currentUser);
+      setcurrentUser(response.data.user);
     } catch (error) {
       console.log(error);
     }
@@ -51,11 +58,20 @@ const ProfilePage = () => {
     <div className="border w-full h-screen sm:px-[15%] sm:py-[5%] overflow-auto flex justify-center items-center">
       <div className="p-5 h-full w-full rounded-xl flex flex-col backdrop-blur-lg bg-white/10 border border-white/20">
         {/* TOP 50% - Editable Section */}
+        <button
+          className=" px-4 py-2 mb-4 rounded-lg text-white font-medium 
+             bg-white/10 backdrop-blur-md border border-white/30 
+             shadow-lg shadow-black/30 hover:bg-white/20 
+             active:scale-95 transition-all duration-200 w-50"
+          onClick={() => navigate("/Home")}
+        >
+          ← HOME
+        </button>
         <div className="h-1/2 flex flex-col justify-center items-center gap-4">
           {/* Profile Image */}
           <img
             src={previewImage}
-            className="w-24 h-24 rounded-full object-cover border cursor-pointer"
+            className="w-40 h-40 rounded-full object-cover border cursor-pointer"
             onClick={() => setShowImageModal(true)}
           />
 
