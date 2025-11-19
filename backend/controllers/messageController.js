@@ -52,7 +52,8 @@ const chat = (server) => {
   let onlineUsers = new Map();
 const allowedOrigins = [
   "http://localhost:5173",          // Local development
-  "https://chatter-app-mu.vercel.app" // Vercel frontend
+  "https://chatter-app-x9lb.vercel.app",
+   // Vercel frontend
 ];
   const io = new Server(server, {
     cors: {

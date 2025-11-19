@@ -16,7 +16,8 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://chatter-app-mu.vercel.app",
+  
+  "https://chatter-app-x9lb.vercel.app",
 ];
 
 app.use(
