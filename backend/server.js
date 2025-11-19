@@ -10,13 +10,12 @@ const { chat } = require("./controllers/messageController");
 const app = express();
 const server = http.createServer(app);
 
-// Middlewares FIRST
+// Middlewares
 app.use(express.json());
 app.use(cookieParser());
 
 const allowedOrigins = [
   "http://localhost:5173",
-  
   "https://chatter-app-x9lb.vercel.app",
 ];
 
@@ -46,14 +45,13 @@ app.get("/", (req, res) => {
   await connectDB();
 })();
 
-// Attach Socket.IO AFTER everything
+// Socket IO
 chat(server);
 
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 3000;
-  server.listen(PORT, () => {
-    console.log("server connected: ", PORT);
-  });
-}
+// 🚀 ALWAYS LISTEN
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("server running on", PORT);
+});
 
 module.exports = server;
