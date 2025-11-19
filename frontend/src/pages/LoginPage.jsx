@@ -16,6 +16,7 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
+  
   const navigate = useNavigate();
   const signUpFormChange = (e) => {
     e.preventDefault();

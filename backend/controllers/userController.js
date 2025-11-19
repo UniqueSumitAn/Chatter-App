@@ -307,7 +307,7 @@ const addFriend = async (req, res) => {
 // friendList
 const friendList = async (req, res) => {
   const userId = req.user._id;
-
+console.log("friendList route hit")
   // 1️⃣ Populate friends AND requests at same time
   const user = await User.findById(userId)
     .populate("friends", "fullname email profilepic status")

@@ -140,7 +140,7 @@ const ChatContainer = ({
       );
 
       if (response.data.success) {
-        const res = await axios.get(`${API_URL}:5000/user/friendList`, {
+        const res = await axios.get(`${API_URL}/user/friendList`, {
           withCredentials: true,
         });
         setFriendList(res.data.friends || []);

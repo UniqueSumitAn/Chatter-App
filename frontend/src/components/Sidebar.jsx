@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import {useContext} from "react";
-import chatIcon from "../assets/team.png";
-import menu from "../assets/dots.png";
-import search from "../assets/people.png";
+import chatIcon from "/team.png";
+import menu from "/dots.png";
+import search from "/people.png";
 import { Navigate, useNavigate } from "react-router-dom";
-import DummyUser from "../assets/DummyUser";
+
 import axios from "axios";
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 const Sidebar = ({
@@ -26,13 +26,13 @@ const Sidebar = ({
   const handledeclineRequest = async (data) => {
     setdeclineRequest(data);
     const response = await axios.post(
-      `${API_URL}:5000/user/declinerequest`,
+      `${API_URL}/user/declinerequest`,
       data,
       { withCredentials: true }
     );
     if (response.data.success) {
       const friendlist = await axios.get(
-        `${API_URL}:5000/user/friendList`,
+        `${API_URL}/user/friendList`,
         {
           withCredentials: true,
         }
@@ -93,7 +93,7 @@ const Sidebar = ({
     const fetchFriendList = async () => {
       try {
         const response = await axios.get(
-          `${API_URL}:5000/user/friendList`,
+          `${API_URL}/user/friendList`,
           {
             withCredentials: true,
           }

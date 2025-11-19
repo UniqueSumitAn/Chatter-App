@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { useContext } from "react";
-import DummyUser from "../assets/DummyUser";
+
 import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_BACKEND_URL;
@@ -55,7 +55,7 @@ const RightSidebar = ({
           <img
             src={SelectedUserDetails.profilepic}
             className="w-50 h-50 cursor-pointer object-cover "
-            onClick={()=>setShowImageModal(true)}
+            onClick={() => setShowImageModal(true)}
           />
           <p className="text-white text-lg">{SelectedUserDetails.fullname}</p>
         </div>
