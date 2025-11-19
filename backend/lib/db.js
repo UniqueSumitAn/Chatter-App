@@ -1,4 +1,3 @@
-// db.js
 const mongoose = require("mongoose");
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -7,7 +6,6 @@ if (!MONGODB_URI) {
   throw new Error("MONGODB_URI not set in environment variables");
 }
 
-// Cache connection (important for Vercel serverless)
 let cached = global._mongoose;
 
 if (!cached) {
@@ -16,7 +14,6 @@ if (!cached) {
 
 async function connectDB() {
   if (cached.conn) {
-    // Avoid duplicate logs
     if (!cached.logged) {
       console.log("📡 MongoDB already connected (cached)");
       cached.logged = true;
@@ -26,13 +23,13 @@ async function connectDB() {
 
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(`${MONGODB_URI}/CHATTER`, {
-        serverSelectionTimeoutMS: 10000, // for debugging
+      .connect(MONGODB_URI, {
+        serverSelectionTimeoutMS: 10000,
       })
-      .then((mongooseInstance) => {
+      .then((conn) => {
         console.log("✅ MongoDB Connected Successfully");
-        cached.logged = true; // ensure log only once
-        return mongooseInstance;
+        cached.logged = true;
+        return conn;
       })
       .catch((err) => {
         console.error("❌ MongoDB Connection Error:", err.message);
