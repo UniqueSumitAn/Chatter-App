@@ -3,7 +3,7 @@ const express = require("express");
 const http = require("http");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const connectdb = require("./lib/db");
+const connectDB = require("./lib/db");
 const userRouter = require("./routes/userRoutes");
 const { chat } = require("./controllers/messageController");
 // const websocket = require("./webSocket/websocket");
@@ -34,7 +34,12 @@ app.get("/testapi", async (req, res) => {
 });
 
 // connect mongoose database
-connectdb();
+
+
+(async () => {
+  await connectDB();
+})();
+
 
 // WebSocket(server);
 if (process.env.NODE_ENV !== "production") {
