@@ -20,12 +20,14 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.1",
     "multer": "^2.0.2",
-    "nodemon": "^3.1.10",
     "socket.io": "^4.8.1",
     "websocket": "^1.0.35"
   },
   "directories": {
     "lib": "lib"
   },
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
 }
