@@ -48,7 +48,6 @@ app.get("/", (req, res) => {
 // Socket IO
 chat(server);
 
-// 🚀 ALWAYS LISTEN
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("server running on", PORT);

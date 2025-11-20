@@ -20,7 +20,7 @@ const protectRoute = async (req, res, next) => {
     }
     else{ ("no token found")}
   } catch (error) {
-     ;
+     
     res.json({ success: false, message: "user not found" });
   }
 };

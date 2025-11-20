@@ -9,7 +9,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   const { currentUser, setcurrentUser } = useContext(UserContext);
-
+  console.log(currentUser);
   const { RequestList, friendList } = location.state || {};
   const [showImageModal, setShowImageModal] = useState(false);
 
@@ -39,7 +39,7 @@ const ProfilePage = () => {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
+      console.log(response.data);
       setcurrentUser(response.data.user);
     } catch (error) {
       console.log(error);

@@ -15,7 +15,6 @@ const searchFriendsUserforSidebar = async (req, res) => {
 
     return res.json(users);
   } catch (error) {
-    
     res.json({ success: false, message: error.message });
   }
 };
@@ -50,11 +49,11 @@ const getMessages = async (req, res) => {
 
 const chat = (server) => {
   let onlineUsers = new Map();
-const allowedOrigins = [
-  "http://localhost:5173",          // Local development
-  "https://chatter-app-x9lb.vercel.app",
-   // Vercel frontend
-];
+  const allowedOrigins = [
+    "http://localhost:5173", // Local development
+    "https://chatter-app-x9lb.vercel.app",
+    // Vercel frontend
+  ];
   const io = new Server(server, {
     cors: {
       origin: allowedOrigins,
@@ -93,7 +92,7 @@ const allowedOrigins = [
     if (user_id) {
       onlineUsers.set(user_id, socket.id);
 
-       console.log(socket_id, "<-socketid::userid->", user_id);
+      console.log(socket_id, "<-socketid::userid->", user_id);
       const user = await User.findByIdAndUpdate(
         `${user_id}`, // The user _id
         { $set: { socket_id: socket.id } }, // The update operation
@@ -116,18 +115,16 @@ const allowedOrigins = [
           minute: "2-digit",
         });
 
-     
         io.to(receiverSocketId).emit("receiveMessage", { newMessage, time });
-        
       }
       // emit message to sender to update senders ui
       io.to(socket.id).emit("messageSent", newMessage);
-       console.log("108 recievemessage sent emitted");
+      console.log("108 recievemessage sent emitted");
     });
 
     socket.on("disconnect", async () => {
       let disconnectedUser = null;
-      
+
       // Find which user had this socket id
       for (const [userId, id] of onlineUsers.entries()) {
         if (id === socket.id) {
@@ -137,12 +134,11 @@ const allowedOrigins = [
         }
       }
       if (disconnectedUser) {
-        const user = await User.findById(disconnectedUser);
-        if (user) {
-          user.status = "offline";
-          await user.save();
-         
-        }
+        await User.findByIdAndUpdate(
+          disconnectedUser,
+          { $set: { status: "offline" } },
+          { new: true }
+        );
       }
     });
   });

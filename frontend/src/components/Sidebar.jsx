@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { UserContext } from "../context/UserContext";
-import {useContext} from "react";
+import { useContext } from "react";
 import chatIcon from "/team.png";
 import menu from "/dots.png";
 import search from "/people.png";
@@ -25,18 +25,13 @@ const Sidebar = ({
   const [SearchfriendText, setSearchFriendText] = useState();
   const handledeclineRequest = async (data) => {
     setdeclineRequest(data);
-    const response = await axios.post(
-      `${API_URL}/user/declinerequest`,
-      data,
-      { withCredentials: true }
-    );
+    const response = await axios.post(`${API_URL}/user/declinerequest`, data, {
+      withCredentials: true,
+    });
     if (response.data.success) {
-      const friendlist = await axios.get(
-        `${API_URL}/user/friendList`,
-        {
-          withCredentials: true,
-        }
-      );
+      const friendlist = await axios.get(`${API_URL}/user/friendList`, {
+        withCredentials: true,
+      });
       setFriendList(friendlist.data.friends);
       setRequestList(friendlist.data.requests);
     }
@@ -45,22 +40,16 @@ const Sidebar = ({
     setSelectedUserDetails(data);
     setSelectdUser(data._id);
     setisFriend(true);
-    const response = await axios.post(
-      `${API_URL}/user/checkFriendList`,
-      data,
-      { withCredentials: true }
-    );
+    const response = await axios.post(`${API_URL}/user/checkFriendList`, data, {
+      withCredentials: true,
+    });
     setMessageRequest(response.data.message);
   };
 
   const acceptRequest = async (data) => {
-    const response = await axios.post(
-      `${API_URL}/user/acceptRequest`,
-      data,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await axios.post(`${API_URL}/user/acceptRequest`, data, {
+      withCredentials: true,
+    });
 
     setFriendList((prev) => [...prev, response.data.newFriend]);
     setRequestList(response.data.requests || []);
@@ -78,26 +67,33 @@ const Sidebar = ({
     setSelectdUser(data._id);
     setSelectedUserDetails(data);
   };
-  const searchFriend = async (text) => {
+  const timerRef = useRef(null);
+
+  const searchFriend = (text) => {
     setSearchFriendText(text);
-    const response = await axios.get(
-       `${API_URL}/user/searchfriend?query=${text}`,
-      {
-        withCredentials: true,
+
+    clearTimeout(timerRef.current);
+
+    timerRef.current = setTimeout(async () => {
+      if (!text.trim()) {
+        setSuggestions([]);
+        return;
       }
-    );
-    setSuggestions(response.data);
+
+      const response = await axios.get(
+        `${API_URL}/user/searchfriend?query=${text}`,
+        { withCredentials: true }
+      );
+      setSuggestions(response.data);
+    }, 1500);
   };
 
   useEffect(() => {
     const fetchFriendList = async () => {
       try {
-        const response = await axios.get(
-          `${API_URL}/user/friendList`,
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`${API_URL}/user/friendList`, {
+          withCredentials: true,
+        });
 
         setFriendList(response.data.friends || []);
         setRequestList(response.data.requests || []);
@@ -125,7 +121,6 @@ const Sidebar = ({
               onClick={() =>
                 navigate("/Profile", {
                   state: {
-                    
                     RequestList,
                     friendList,
                   },
@@ -179,7 +174,9 @@ const Sidebar = ({
               </div>
             ))
           : SearchfriendText && (
-              <p className="text-gray-400 text-xs mt-2">No users found</p>
+              <p className="text-gray-400 text-xs mt-2">
+                {Suggestions.length <= 0 ? "Searching..." : "User not found"}
+              </p>
             )}
       </div>
 

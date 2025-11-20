@@ -11,7 +11,7 @@ const EmptyChat = () => {
   return (
     <div className="flex-1 h-full min-h-0 rounded-xl shadow-xl backdrop-blur-lg bg-white/10 border border-white/20 flex justify-center items-center flex-col ">
       <div className=" aspect-square ">
-        <p>hello{currentUser.fullname}</p>
+       
         <DotLottieReact
           src="https://lottie.host/04215c45-db7c-463f-bfb9-6432e21a9e1d/btsvuZ6ZCN.lottie"
           loop
