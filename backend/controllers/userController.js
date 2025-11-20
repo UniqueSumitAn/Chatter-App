@@ -4,8 +4,10 @@ const bcrypt = require("bcrypt");
 const streamUpload = require("../lib/Cloudinary");
 const cookie = require("cookie");
 const fs = require("fs");
+const connectDB = require("../lib/db");
 // sign up a new user
 const signUp = async (req, res) => {
+  await connectDB() // for render
   const { email, fullname, password, profilepic, friends } = req.body;
   try {
     if (!fullname || !email || !password) {
@@ -49,6 +51,7 @@ const signUp = async (req, res) => {
 
 // login
 const login = async (req, res) => {
+  await connectDB()// render
   const { email, password } = req.body;
   if (!email || !password)
     return res.json({ success: false, message: "Invalid Credentials" });

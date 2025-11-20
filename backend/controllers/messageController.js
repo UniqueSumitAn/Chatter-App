@@ -61,6 +61,7 @@ const chat = (server) => {
       methods: ["GET", "POST"],
       credentials: true,
     },
+     transports: ["polling", "websocket"],
   });
 
   io.use((socket, next) => {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { UserContext } from "../context/UserContext";
-import {useContext} from "react";
+import { useContext } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 import EmojiPicker from "emoji-picker-react";
@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL;
 const ChatContainer = ({
   SelectedUser,
   setMessageRequest,
-  
+
   SelectedUserDetails,
   isFriend,
   setFriendList,
@@ -45,6 +45,7 @@ const ChatContainer = ({
     if (!currentUser?._id) return;
 
     socketRef.current = io(`${API_URL}`, {
+      transports: ["polling", "websocket"],
       withCredentials: true,
       auth: { userId: currentUser._id },
     });
@@ -61,10 +62,9 @@ const ChatContainer = ({
       if (!SelectedUser) return;
 
       try {
-        const res = await axios.get(
-           `${API_URL}/user/${SelectedUser}`,
-          { withCredentials: true }
-        );
+        const res = await axios.get(`${API_URL}/user/${SelectedUser}`, {
+          withCredentials: true,
+        });
         const formatted = res.data.map((msg) => ({
           ...msg,
           time: new Date(msg.createdAt).toLocaleTimeString("en-US", {
@@ -133,11 +133,9 @@ const ChatContainer = ({
 
   const handleAddFriend = async (data) => {
     try {
-      const response = await axios.post(
-        `${API_URL}/user/addFriend`,
-        data,
-        { withCredentials: true }
-      );
+      const response = await axios.post(`${API_URL}/user/addFriend`, data, {
+        withCredentials: true,
+      });
 
       if (response.data.success) {
         const res = await axios.get(`${API_URL}/user/friendList`, {

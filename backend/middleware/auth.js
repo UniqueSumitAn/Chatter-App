@@ -1,11 +1,12 @@
 const jwt = require("jsonwebtoken");
 const User = require("../Model/User");
+const connectDB = require("../lib/db");
 
 // middleware to protect routes
 
 const protectRoute = async (req, res, next) => {
   try {
-    
+    await connectDB() // render
     const token = req.cookies?.token;
     if (token) {
       const deecode = await jwt.verify(token, process.env.JWTSECRET);
