@@ -17,6 +17,7 @@ app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",
   "https://chatter-app-x9lb.vercel.app",
+  "https://comforting-dusk-52744b.netlify.app",
 ];
 
 app.use(
