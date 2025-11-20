@@ -52,7 +52,7 @@ const chat = (server) => {
   const allowedOrigins = [
     "http://localhost:5173", // Local development
     "https://chatter-app-x9lb.vercel.app",
-    "https://comforting-dusk-52744b.netlify.app"//netlify
+    "https://calm-swan-8b7784.netlify.app"//netlify
     // Vercel frontend
   ];
   const io = new Server(server, {
