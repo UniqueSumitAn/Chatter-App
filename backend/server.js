@@ -13,6 +13,7 @@ const server = http.createServer(app);
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
+app.set("trust proxy", 1);
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -22,11 +23,20 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // allow mobile apps / Postman
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
 
 // Routes
 app.use("/user", userRouter);

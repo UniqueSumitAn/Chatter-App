@@ -7,17 +7,18 @@ const fs = require("fs");
 const connectDB = require("../lib/db");
 // sign up a new user
 const signUp = async (req, res) => {
-  await connectDB() // for render
   const { email, fullname, password, profilepic, friends } = req.body;
+
   try {
     if (!fullname || !email || !password) {
       return res.json({ success: false, message: "missing fields" });
     }
 
-    const user = await User.findOne({ email });
-    if (user) {
+    const isUser = await User.findOne({ email });
+    if (isUser) {
       return res.json({ success: false, message: "user already exist" });
     }
+
     const newUser = new User({
       email,
       fullname,
@@ -28,30 +29,33 @@ const signUp = async (req, res) => {
     });
 
     await newUser.save();
-    const savedUser = await User.findById(newUser._id).select("-password");
+
     const token = generateToken(newUser._id.toString());
-    await res.cookie("token", token, {
-      httpOnly: true, // JS on frontend cannot access (good)
-      secure: false, // set true if using HTTPS (production)
-      sameSite: "lax", // allows sending cookie with cross-origin requests
+
+    // FIXED COOKIE for Render + localhost
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true, // Render runs HTTPS
+      sameSite: "none", // Required for cross-origin cookies
     });
+
+    const savedUser = await User.findById(newUser._id).select("-password");
 
     return res.json({
       success: true,
       user: savedUser,
       user_id: savedUser._id,
-      email: email,
+      email,
       message: "user created successfully",
     });
   } catch (error) {
-    error;
     return res.json({ success: false, message: error.message });
   }
 };
 
 // login
 const login = async (req, res) => {
-  await connectDB()// render
+  await connectDB(); // render
   const { email, password } = req.body;
   if (!email || !password)
     return res.json({ success: false, message: "Invalid Credentials" });
@@ -69,10 +73,10 @@ const login = async (req, res) => {
         user.status = "online";
         await user.save();
         const token = generateToken(user._id);
-        await res.cookie("token", token, {
-          httpOnly: true, // JS on frontend cannot access (good)
-          secure: false, // set true if using HTTPS (production)
-          sameSite: "lax", // allows sending cookie with cross-origin requests
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: true, // Render uses HTTPS
+          sameSite: "none", // Required for cross-site cookies
         });
         const userWithoutPassword = await User.findById(user._id).select(
           "-password"
@@ -310,7 +314,7 @@ const addFriend = async (req, res) => {
 // friendList
 const friendList = async (req, res) => {
   const userId = req.user._id;
-console.log("friendList route hit")
+  console.log("friendList route hit");
   // 1️⃣ Populate friends AND requests at same time
   const user = await User.findById(userId)
     .populate("friends", "fullname email profilepic status")
