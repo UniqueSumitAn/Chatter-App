@@ -16,7 +16,7 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
-  
+
   const navigate = useNavigate();
   const signUpFormChange = (e) => {
     e.preventDefault();
@@ -47,17 +47,18 @@ const LoginPage = () => {
         );
 
         if (response.data.success) {
+          setcurrentUser(response.data.user);
           navigate("/Home", {
             state: {
               user: response.data.user,
               user_id: response.data.user_id,
             },
           });
-          setcurrentUser(response.data.user);
         } else {
           console.log(response.data.message);
         }
       } else {
+        console.log("request sent for login");
         const response = await axios.post(
           `${API_URL}/user/login`,
           loginFormDetails,
@@ -65,15 +66,15 @@ const LoginPage = () => {
             withCredentials: true,
           }
         );
-
+        console.log("response for login recieved");
         if (response.data.success) {
+          setcurrentUser(response.data.user);
           navigate("/Home", {
             state: {
               user: response.data.user,
               user_id: response.data.user_id,
             },
           });
-          setcurrentUser(response.data.user);
         } else {
           console.log(response.data.message);
         }

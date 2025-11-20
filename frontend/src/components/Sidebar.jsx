@@ -91,9 +91,11 @@ const Sidebar = ({
   useEffect(() => {
     const fetchFriendList = async () => {
       try {
+        console.log("fetchfriendlist route hit")
         const response = await axios.get(`${API_URL}/user/friendList`, {
           withCredentials: true,
         });
+        console.log("response recieved for fetch friend list")
 
         setFriendList(response.data.friends || []);
         setRequestList(response.data.requests || []);

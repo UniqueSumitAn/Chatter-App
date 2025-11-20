@@ -40,18 +40,22 @@ app.get("/", (req, res) => {
   console.log("server is live");
   return res.json({ success: true, message: "server is live" });
 });
+const startServer = async () => {
+  try {
+    await connectDB();  // ⬅️ Wait for MongoDB before starting server
+    console.log("Mongo connected. Starting server...");
 
-// DB connection
-(async () => {
-  await connectDB();
-})();
+    chat(server); // start socket after DB connected
 
-// Socket IO
-chat(server);
+    const PORT = process.env.PORT || 3000;
+    server.listen(PORT, () => {
+      console.log("server running on", PORT);
+    });
+  } catch (error) {
+    console.error("Error starting server:", error);
+  }
+};
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log("server running on", PORT);
-});
+startServer();
 
 module.exports = server;
