@@ -75,9 +75,11 @@ const login = async (req, res) => {
         const token = generateToken(user._id);
         res.cookie("token", token, {
           httpOnly: true,
-          secure: true, // Render uses HTTPS
-          sameSite: "none", // Required for cross-site cookies
+          secure: true,
+          sameSite: "none",
+          path: "/", 
         });
+
         const userWithoutPassword = await User.findById(user._id).select(
           "-password"
         );
@@ -357,8 +359,8 @@ const friendList = async (req, res) => {
 //logout
 const logout = async (req, res) => {
   try {
-const userId=req.id._id;
-
+    const userId = req.user._id;
+console.log(userId,"logout route hit");
     // 1. Clear the token cookie
     res.clearCookie("token", {
       httpOnly: true,
@@ -376,7 +378,7 @@ const userId=req.id._id;
 
     return res.json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    error.message;
+    Console.log (error.message);
     res.status(500).json({ success: false, message: "Logout failed" });
   }
 };

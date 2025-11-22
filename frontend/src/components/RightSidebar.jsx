@@ -15,18 +15,15 @@ const RightSidebar = ({
   const { currentUser, setcurrentUser } = useContext(UserContext);
   const [showImageModal, setShowImageModal] = useState(false);
   const logout = async () => {
+    console.log("logout route hit");
     const response = await axios.get(
-      `${API_URL}/user/logout`,
-      { currentUser },
-      {
-        withCredentials: true,
-      }
+      `${API_URL}/user/logout`,{ withCredentials: true }
     );
+
     if (response.data.success) {
       navigate("/");
     }
   };
-  
   return (
     <div className=" flex flex-col justify-center items-center h-full min-h-0 backdrop-blur-lg bg-white/10 border border-white/20 rounded-l-xl">
       <div className="absolute top-3 left-0 right-0 flex justify-between items-center px-3">

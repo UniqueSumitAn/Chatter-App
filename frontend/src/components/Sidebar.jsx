@@ -47,10 +47,9 @@ const Sidebar = ({
     setMessageRequest(response.data.message);
   };
   const logout = async () => {
+    console.log("logout route hit");
     const response = await axios.get(
-      `${API_URL}/user/logout`,
-      { currentUser },
-      { withCredentials: true }
+      `${API_URL}/user/logout`,{ withCredentials: true }
     );
 
     if (response.data.success) {
@@ -118,7 +117,7 @@ const Sidebar = ({
 
     fetchFriendList();
   }, []);
-  
+
   return (
     <div className="p-5 min-h-0 h-full rounded-r-xl flex flex-col backdrop-blur-lg bg-white/10 border border-white/20">
       {/* logo and profile options */}
