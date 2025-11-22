@@ -357,6 +357,8 @@ const friendList = async (req, res) => {
 //logout
 const logout = async (req, res) => {
   try {
+const userId=req.id._id;
+
     // 1. Clear the token cookie
     res.clearCookie("token", {
       httpOnly: true,
@@ -367,7 +369,7 @@ const logout = async (req, res) => {
 
     // 2. Update user status
     await User.findByIdAndUpdate(
-      req.body._id,
+      userId,
       { $set: { status: "offline" } },
       { new: true }
     );
