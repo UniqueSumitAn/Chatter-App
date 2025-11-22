@@ -20,6 +20,7 @@ const Sidebar = ({
   declineRequest,
   setdeclineRequest,
 }) => {
+  const navigate = useNavigate();
   const { currentUser, setcurrentUser } = useContext(UserContext);
   const [Suggestions, setSuggestions] = useState([]);
   const [SearchfriendText, setSearchFriendText] = useState();
@@ -45,7 +46,17 @@ const Sidebar = ({
     });
     setMessageRequest(response.data.message);
   };
+  const logout = async () => {
+    const response = await axios.get(
+      `${API_URL}/user/logout`,
+      { currentUser },
+      { withCredentials: true }
+    );
 
+    if (response.data.success) {
+      navigate("/");
+    }
+  };
   const acceptRequest = async (data) => {
     const response = await axios.post(`${API_URL}/user/acceptRequest`, data, {
       withCredentials: true,
@@ -91,11 +102,11 @@ const Sidebar = ({
   useEffect(() => {
     const fetchFriendList = async () => {
       try {
-        console.log("fetchfriendlist route hit")
+        console.log("fetchfriendlist route hit");
         const response = await axios.get(`${API_URL}/user/friendList`, {
           withCredentials: true,
         });
-        console.log("response recieved for fetch friend list")
+        console.log("response recieved for fetch friend list");
 
         setFriendList(response.data.friends || []);
         setRequestList(response.data.requests || []);
@@ -107,7 +118,7 @@ const Sidebar = ({
 
     fetchFriendList();
   }, []);
-  const navigate = useNavigate();
+  
   return (
     <div className="p-5 min-h-0 h-full rounded-r-xl flex flex-col backdrop-blur-lg bg-white/10 border border-white/20">
       {/* logo and profile options */}
@@ -132,10 +143,7 @@ const Sidebar = ({
               Edit Profile
             </p>
             <hr />
-            <p
-              className=" cursor-pointer text-sm"
-              onClick={() => navigate("/Logout")}
-            >
+            <p className=" cursor-pointer text-sm" onClick={() => logout}>
               Logout
             </p>
           </div>

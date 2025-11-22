@@ -357,22 +357,20 @@ const friendList = async (req, res) => {
 //logout
 const logout = async (req, res) => {
   try {
-    // Optional: update user status
-
-    // if (req.userId) {
-    //   const user = await User.findById(req.userId);
-    //   if (user) {
-    //     user.status = "offline";
-    //     await user.save();
-    //   }
-    // }
-
-    // ✅ Clear the token cookie
+    // 1. Clear the token cookie
     res.clearCookie("token", {
       httpOnly: true,
-      secure: false, // true in production
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
+      path: "/",
     });
+
+    // 2. Update user status
+    await User.findByIdAndUpdate(
+      req.body._id,
+      { $set: { status: "offline" } },
+      { new: true }
+    );
 
     return res.json({ success: true, message: "Logged out successfully" });
   } catch (error) {
