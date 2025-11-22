@@ -3,6 +3,8 @@ const User = require("../Model/User");
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
 const Message = require("../Model/message");
+const streamUpload = require("../lib/Cloudinary");
+
 const searchFriendsUserforSidebar = async (req, res) => {
   try {
     const search = req.query.query || "";
@@ -46,13 +48,49 @@ const getMessages = async (req, res) => {
     res.status(500).json({ message: "Error fetching messages" });
   }
 };
+const sendfile = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file received",
+      });
+    }
 
+    // Upload file to Cloudinary
+    const fileUpload = await streamUpload(req.file.buffer, "chat_media");
+
+    // fileUpload contains:
+    // fileUpload.secure_url
+    // fileUpload.resource_type  => "image" / "video" / "raw" / "audio"
+    // fileUpload.format         => jpg, mp4, mp3, etc
+    // fileUpload.public_id
+
+    return res.status(200).json({
+      success: true,
+      message: "File uploaded successfully",
+      url: fileUpload.secure_url,
+      type: fileUpload.resource_type,
+      format: fileUpload.format,
+      public_id: fileUpload.public_id,
+    });
+  } catch (error) {
+    console.error("File Upload Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "File upload failed",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { sendfile };
 const chat = (server) => {
   let onlineUsers = new Map();
   const allowedOrigins = [
     "http://localhost:5173", // Local development
     "https://chatter-app-x9lb.vercel.app",
-    "https://calm-swan-8b7784.netlify.app"//netlify
+    "https://calm-swan-8b7784.netlify.app", //netlify
     // Vercel frontend
   ];
   const io = new Server(server, {
@@ -61,7 +99,7 @@ const chat = (server) => {
       methods: ["GET", "POST"],
       credentials: true,
     },
-     transports: ["polling", "websocket"],
+    transports: ["polling", "websocket"],
   });
 
   io.use((socket, next) => {
@@ -105,11 +143,11 @@ const chat = (server) => {
     socket.emit("socketid", socket.id);
 
     socket.on("sendMessage", async (data) => {
-      const { senderId, receiverId, text } = data;
+      const { senderId, receiverId, text,image_link,type } = data;
       //check if reciever is online
       const receiverSocketId = onlineUsers.get(receiverId);
       //save message to db
-      const newMessage = await Message.create({ senderId, receiverId, text });
+      const newMessage = await Message.create({ senderId, receiverId, text,image_link,type });
       // ✅ Emit message to receiver (if online)
       if (receiverSocketId) {
         const time = newMessage.createdAt.toLocaleTimeString("en-US", {
@@ -146,4 +184,4 @@ const chat = (server) => {
   });
 };
 
-module.exports = { searchFriendsUserforSidebar, chat, getMessages };
+module.exports = { searchFriendsUserforSidebar, chat, getMessages, sendfile };

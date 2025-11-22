@@ -8,7 +8,8 @@ const API_URL = import.meta.env.VITE_BACKEND_URL;
 const ChatContainer = ({
   SelectedUser,
   setMessageRequest,
-
+  messages,
+  setMessages,
   SelectedUserDetails,
   isFriend,
   setFriendList,
@@ -16,11 +17,13 @@ const ChatContainer = ({
   setRequestList,
 }) => {
   const { currentUser, setcurrentUser } = useContext(UserContext);
-  const [messages, setMessages] = useState([]);
+  const [isSending, setisSending] = useState(false);
   const [text, setText] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const emojiRef = useRef(null);
-
+  const [preview, setpreview] = useState(null);
+  const [previewType, setpreviewType] = useState(null);
+  const [SelectedFile, setSelectedFile] = useState();
   const socketRef = useRef(null);
   const bottomRef = useRef(null);
   useEffect(() => {
@@ -117,18 +120,55 @@ const ChatContainer = ({
     };
   }, [SelectedUser]);
 
-  const handleSend = () => {
-    if (!text.trim()) return;
+  const uploadImage = async (data, fileType) => {
+    const formData = new FormData();
+    formData.append("file", data);
+
+    if (fileType == "image") {
+      const res = await axios.post(`${API_URL}/user/sendfile`, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (res.data.success) return res.data.url;
+    }
+    if (fileType == "video") {
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dmj3t5tyh/video/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await res.json();
+      return data.secure_url;
+    }
+  };
+
+  const handleSend = async () => {
+    if (!text.trim() && !SelectedFile) return;
     if (!socketRef.current) return;
+    setisSending(true);
+    let fileUrl = null;
+    let fileType = null;
+
+    if (SelectedFile) {
+      fileType = SelectedFile.type.startsWith("video") ? "video" : "image";
+
+      fileUrl = await uploadImage(SelectedFile, fileType);
+    }
 
     socketRef.current.emit("sendMessage", {
       senderId: currentUser._id,
       receiverId: SelectedUser,
       text,
+      image_link: fileUrl,
+      type: fileType,
     });
-
+    setSelectedFile(null);
+    setpreview(null);
     setText("");
     setShowEmoji(false);
+    setisSending(false);
   };
 
   const handleAddFriend = async (data) => {
@@ -148,7 +188,24 @@ const ChatContainer = ({
       console.error("Error adding friend:", err);
     }
   };
+  const handleFileSelect = async (e) => {
+    const file = e.target.files[0];
+    console.log("clicked ");
 
+    // Detect preview type
+    if (file.type.startsWith("image/")) {
+      setpreviewType("image");
+    } else if (file.type === "application/pdf") {
+      setpreviewType("pdf");
+    } else if (file.type.startsWith("video/")) {
+      setpreviewType("video");
+    } else {
+      setpreviewType(null);
+    }
+
+    setSelectedFile(file);
+    setpreview(URL.createObjectURL(file));
+  };
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
@@ -229,6 +286,34 @@ const ChatContainer = ({
                   }`}
                 >
                   {message.text}
+
+                  {/* IMAGE */}
+                  {message.type === "image" && (
+                    <img
+                      src={message.image_link}
+                      alt="sent-media"
+                      className="w-48 rounded-lg mt-2"
+                    />
+                  )}
+
+                  {/* VIDEO */}
+                  {message.type === "video" && (
+                    <video
+                      src={message.image_link}
+                      controls
+                      className="w-48 rounded-lg mt-2"
+                    />
+                  )}
+
+                  {/* AUDIO */}
+                  {message.mediaType === "audio" && (
+                    <audio controls className="mt-2 w-full">
+                      <source
+                        src={message.mediaUrl}
+                        type={`audio/${message.format}`}
+                      />
+                    </audio>
+                  )}
                   <br />
                   <p className="text-gray-300 text-[9px] ml-auto ">
                     {message.time}
@@ -249,6 +334,41 @@ const ChatContainer = ({
             ))}
             <div ref={bottomRef}></div>
           </div>
+          {preview && (
+            <div className="w-full flex justify-center mb-2">
+              <div className="relative">
+                {/* Remove preview button */}
+                <button
+                  onClick={() => {
+                    setpreview(null);
+                    setSelectedFile(null);
+                  }}
+                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full px-2"
+                >
+                  ✕
+                </button>
+
+                {/* Image preview */}
+                {previewType === "image" && (
+                  <img
+                    src={preview}
+                    className="h-20 w-20 object-cover rounded-lg shadow-md"
+                  />
+                )}
+
+                {/* Video preview */}
+                {previewType === "video" && (
+                  <video
+                    src={preview}
+                    className="h-20 w-20 rounded-lg shadow-md"
+                    muted
+                    autoPlay
+                    loop
+                  />
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Message input */}
           <div className="relative flex justify-center items-center mb-3 mt-3 gap-3">
@@ -259,17 +379,32 @@ const ChatContainer = ({
             )}
 
             <button
-              className="text-2xl text-white"
+              className="text-2xl text-white cursor-pointer"
               onClick={() => setShowEmoji(!showEmoji)}
             >
               😊
             </button>
+            {/* Attach Media Button */}
+            <button
+              className="text-2xl text-white cursor-pointer"
+              onClick={() => document.getElementById("mediaInput").click()}
+            >
+            🖇️
+            </button>
 
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              id="mediaInput"
+              accept="image/*, video/*"
+              className="hidden"
+              onChange={handleFileSelect}
+            />
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Type Your Message"
+              placeholder={isSending ? "Sending ..." : "Type Your Message"}
               className="w-[70%] h-10 bg-purple-600 rounded-4xl p-5 text-white placeholder:text-center"
             ></input>
 

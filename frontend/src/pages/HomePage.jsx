@@ -17,7 +17,7 @@ const HomePage = () => {
   const [RequestList, setRequestList] = useState([]);
   const [MessageRequest, setMessageRequest] = useState(false);
   const [declineRequest, setdeclineRequest] = useState();
-
+  const [messages, setMessages] = useState([]);
   const { currentUser, setcurrentUser } = useContext(UserContext);
   console.log(currentUser);
   console.log(API_URL);
@@ -60,6 +60,8 @@ const HomePage = () => {
                 setRequestList={setRequestList}
                 MessageRequest={MessageRequest}
                 setMessageRequest={setMessageRequest}
+                messages={messages}
+                setMessages={setMessages}
               />
             </div>
             {isFriend && (
@@ -69,6 +71,8 @@ const HomePage = () => {
                   isFriend={isFriend}
                   RequestList={RequestList}
                   friendList={friendList}
+                  messages={messages}
+                  setMessages={setMessages}
                 />
               </div>
             )}

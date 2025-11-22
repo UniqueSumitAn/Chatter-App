@@ -48,9 +48,9 @@ const Sidebar = ({
   };
   const logout = async () => {
     console.log("logout route hit");
-    const response = await axios.get(
-      `${API_URL}/user/logout`,{ withCredentials: true }
-    );
+    const response = await axios.get(`${API_URL}/user/logout`, {
+      withCredentials: true,
+    });
 
     if (response.data.success) {
       navigate("/");
@@ -142,7 +142,7 @@ const Sidebar = ({
               Edit Profile
             </p>
             <hr />
-            <p className=" cursor-pointer text-sm" onClick={() => logout}>
+            <p className=" cursor-pointer text-sm" onClick={() => logout()}>
               Logout
             </p>
           </div>
