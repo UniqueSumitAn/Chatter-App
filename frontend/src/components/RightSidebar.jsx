@@ -68,7 +68,7 @@ const RightSidebar = ({
           </button>
 
           <button
-            className="p-2 rounded-full cursor-pointer text-white text-2xl"
+            className="p-2 rounded-full cursor-pointer text-black text-2xl md:hidden font-bold"
             onClick={() => setShowMobileRightSidebar(false)}
           >
             {`< |`}
