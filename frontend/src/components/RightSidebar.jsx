@@ -12,12 +12,13 @@ const RightSidebar = ({
   friendList,
   messages,
   setMessages,
+  setShowMobileRightSidebar,
 }) => {
   const navigate = useNavigate();
   const { currentUser, setcurrentUser } = useContext(UserContext);
   const [showImageModal, setShowImageModal] = useState(false);
   const [mediaGallery, setmediaGallery] = useState([]);
-  const [ModelSrc, setModelSrc] = useState()
+  const [ModelSrc, setModelSrc] = useState();
   const logout = async () => {
     console.log("logout route hit");
     const response = await axios.get(`${API_URL}/user/logout`, {
@@ -39,7 +40,7 @@ const RightSidebar = ({
   }, [messages]);
 
   return (
-    <div className=" flex flex-col justify-center items-center h-full min-h-0 backdrop-blur-lg bg-white/10 border border-white/20 rounded-l-xl">
+    <div className=" flex flex-col justify-center items-center h-full min-h-0 backdrop-blur-3xl  bg-white/10 border border-white/20 rounded-l-xl">
       <div className="absolute top-3 left-0 right-0 flex justify-between items-center px-3">
         <div
           onClick={() =>
@@ -58,13 +59,21 @@ const RightSidebar = ({
           />
           <p className="text-white">{currentUser.fullname}</p>
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="backdrop-blur-lg bg-white/10 border border-white/20 px-4 py-2 rounded-lg text-white cursor-pointer"
+            onClick={logout}
+          >
+            Logout
+          </button>
 
-        <button
-          className="backdrop-blur-lg bg-white/10 border border-white/20 px-4 py-2 rounded-lg text-black cursor-pointer"
-          onClick={logout}
-        >
-          Logout
-        </button>
+          <button
+            className="p-2 rounded-full cursor-pointer text-white text-2xl"
+            onClick={() => setShowMobileRightSidebar(false)}
+          >
+            {`< |`}
+          </button>
+        </div>
       </div>
 
       {isFriend && (

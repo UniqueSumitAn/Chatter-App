@@ -15,6 +15,9 @@ const ChatContainer = ({
   setFriendList,
   MessageRequest,
   setRequestList,
+  setSelectdUser,
+  setSelectedUserDetails,
+  setShowMobileRightSidebar,
 }) => {
   const { currentUser, setcurrentUser } = useContext(UserContext);
   const [isSending, setisSending] = useState(false);
@@ -236,13 +239,15 @@ const ChatContainer = ({
         <>
           {/* Header */}
           <div className="flex items-center gap-3 py-3 mx-4 border-b border-stone-500">
-            <img
-              src={SelectedUserDetails.profilepic}
-              alt={SelectedUserDetails.fullname}
-              className="w-8 aspect-square rounded-full object-cover"
-            />
-            <p className="flex-1 text-lg text-white flex items-center gap-2">
-              {SelectedUserDetails.fullname}
+            <span className="flex items-center gap-2 cursor-pointer" onClick={()=>{setShowMobileRightSidebar(true)}}>
+              <img
+                src={SelectedUserDetails.profilepic}
+                alt={SelectedUserDetails.fullname}
+                className="w-8 aspect-square rounded-full object-cover"
+              />
+              <p className="flex-1 text-lg text-white flex items-center gap-2">
+                {SelectedUserDetails.fullname}
+              </p>
               <span
                 className={`rounded-full w-2 h-2 ${
                   SelectedUserDetails.status === "online"
@@ -250,7 +255,16 @@ const ChatContainer = ({
                     : "bg-gray-300"
                 }`}
               ></span>
-            </p>
+            </span>
+            <span className="ml-auto">
+              <button
+                onClick={() => {
+                  setSelectdUser(null);
+                  setSelectedUserDetails(null);
+                }}
+                className="cursor-pointer mr-auto text-2xl text-white"
+              >{`< |`}</button>
+            </span>
           </div>
 
           {MessageRequest && (
@@ -389,7 +403,7 @@ const ChatContainer = ({
               className="text-2xl text-white cursor-pointer"
               onClick={() => document.getElementById("mediaInput").click()}
             >
-            🖇️
+              🖇️
             </button>
 
             {/* Hidden File Input */}
