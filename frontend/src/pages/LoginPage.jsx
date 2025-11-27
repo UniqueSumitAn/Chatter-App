@@ -84,9 +84,15 @@ const LoginPage = () => {
     }
   };
   return (
-    <div className="grid grid-cols-2 justify-center items-center h-full">
+    <div className="relative h-screen  overflow-hidden grid grid-cols-1 md:grid-cols-2">
       {/* interactive model */}
-      <div className="flex justify-center items-center h-full">
+      <div
+        className="   absolute inset-0 -z-10   
+        h-full    
+          md:static md:z-0 md:opacity-100  
+          opacity-70                    
+          flex justify-center items-center "
+      >
         <Interactivemodel />
       </div>
 
@@ -94,7 +100,7 @@ const LoginPage = () => {
       <div className="flex justify-center items-center h-full">
         <form
           onSubmit={(e) => SubmitHandler(e)}
-          className=" backdrop-blur-lg bg-white/10 border border-white/20 text-white p-6 flex flex-col gap-6 rounded-xl shadow-xl"
+          className=" backdrop-blur-lg bg-white/10 border border-white/20 text-white p-6 flex flex-col gap-6 rounded-xl shadow-xl relative z-10"
         >
           {currentState && (
             <>
