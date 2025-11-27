@@ -262,7 +262,7 @@ const ChatContainer = ({
                   setSelectdUser(null);
                   setSelectedUserDetails(null);
                 }}
-                className="cursor-pointer mr-auto text-2xl  font-bold text-black"
+                className="cursor-pointer mr-auto text-2xl  font-bold text-black md:hidden"
               >{`< |`}</button>
             </span>
           </div>
